@@ -51,13 +51,13 @@ if (bgGradient) {
 }
 
 // タイプライター風アニメーション
-function typewriterText(element, text, onComplete) {
+function typewriterText(element, text, duration, onComplete) {
   let i = 0;
   function showNext() {
     if (i <= text.length) {
       element.textContent = text.slice(0, i) + '_';
       i++;
-      setTimeout(showNext, 100); // 1文字40ms
+      setTimeout(showNext, duration); // 1文字40ms
     } else {
       element.textContent = text; // _を消す
       if (onComplete) onComplete();
@@ -81,8 +81,8 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   // 日本語・英語を同時にタイプライター表示
-  typewriterText(aiJa, aiJaText, onTypewriterFinished);
-  typewriterText(aiEn, aiEnText, onTypewriterFinished);
+  typewriterText(aiJa, aiJaText, 100, onTypewriterFinished);
+  typewriterText(aiEn, aiEnText, 80, onTypewriterFinished);
 
   function showChoices() {
     const choices = document.querySelectorAll('.c-choice');
