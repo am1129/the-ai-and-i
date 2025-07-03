@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 送信ボタンの処理をターンごとに分岐
-  let currentTurn = 1;
+  window.currentTurn = 1;
   // セッション終了フラグ
   const SESSION_KEY = 'the_ai_and_i_ended';
   if (sessionStorage.getItem(SESSION_KEY)) {
@@ -77,18 +77,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.js-user-input').classList.add('is-hidden');
     showLoading();
     let apiResponse, aiData;
-    if (currentTurn === 1) {
+    if (window.currentTurn === 1) {
       // 挨拶入力→テーマ選択肢
       apiResponse = await fetchAiGreetingWithInput(userInput);
-    } else if (currentTurn === 3) {
+    } else if (window.currentTurn === 3) {
       // 詩への感想入力→別れのテーマ選択肢
       apiResponse = await fetchAiWithUserInput(userInput, 3);
-    } else if (currentTurn === 5) {
+    } else if (window.currentTurn === 5) {
       // 別れのひと言入力→AI最終詩
       apiResponse = await fetchAiWithUserInput(userInput, 5);
     } else {
       // その他ターンはデフォルトでturn:currentTurn
-      apiResponse = await fetchAiWithUserInput(userInput, currentTurn);
+      apiResponse = await fetchAiWithUserInput(userInput, window.currentTurn);
     }
     console.log(apiResponse);
     aiData = { ai: { ja: '', en: '' }, poem: null, choices: [] };
@@ -126,18 +126,18 @@ document.addEventListener('DOMContentLoaded', () => {
     startTypewriterEffect(() => {
       if (aiData.choices && aiData.choices.length > 0) {
         showChoicesAnimated();
-        currentTurn++;
-      } else if (currentTurn === 5) {
+        window.currentTurn++;
+      } else if (window.currentTurn === 5) {
         showUserInputAnimated();
-        currentTurn++;
-      } else if (currentTurn === 6) {
+        window.currentTurn++;
+      } else if (window.currentTurn === 6) {
         document.querySelector('.js-user-input').classList.add('is-hidden');
         showFinalGoodbye();
         sessionStorage.setItem(SESSION_KEY, '1');
-        currentTurn++;
+        window.currentTurn++;
       } else {
         showUserInputAnimated();
-        currentTurn++;
+        window.currentTurn++;
       }
     });
     // 入力欄クリア
@@ -153,10 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const choiceEn = btn.querySelector('.c-choice__en')?.textContent || '';
     document.querySelector('.js-choices').classList.add('is-hidden');
     // Turn2: テーマ選択→詩生成、Turn4: 別れテーマ選択→最終詩
-    let turnForChoice = currentTurn;
-    if (currentTurn === 2) {
+    let turnForChoice = window.currentTurn;
+    if (window.currentTurn === 2) {
       turnForChoice = 2;
-    } else if (currentTurn === 4) {
+    } else if (window.currentTurn === 4) {
       turnForChoice = 4;
     }
     showLoading();
@@ -194,16 +194,16 @@ document.addEventListener('DOMContentLoaded', () => {
     startTypewriterEffect(() => {
       if (aiData.choices && aiData.choices.length > 0) {
         showChoicesAnimated();
-        currentTurn++;
-      } else if (currentTurn === 2) {
+        window.currentTurn++;
+      } else if (window.currentTurn === 2) {
         showUserInputAnimated();
-        currentTurn++;
-      } else if (currentTurn === 4) {
+        window.currentTurn++;
+      } else if (window.currentTurn === 4) {
         showUserInputAnimated();
-        currentTurn++;
+        window.currentTurn++;
       } else {
         showUserInputAnimated();
-        currentTurn++;
+        window.currentTurn++;
       }
     });
     hideLoading();
@@ -353,21 +353,24 @@ function showUserInputAnimated() {
   const guideJa = document.querySelector('.js-user-input-guide-ja');
   const guideEn = document.querySelector('.js-user-input-guide-en');
   // 7ターン目以降は入力欄を非表示
-  if (typeof currentTurn !== 'undefined' && currentTurn > 6) {
+  if (typeof window.currentTurn !== 'undefined' && window.currentTurn > 6) {
     userInput.classList.add('is-hidden');
     guideJa.textContent = '';
     guideEn.textContent = '';
     return;
   }
+  if(typeof window.currentTurn !== 'undefined' ) {
+    console.log(window.currentTurn);
+  }
   // ターンごとにガイド文言を切り替え
-  if (typeof currentTurn !== 'undefined') {
-    if (currentTurn === 1) {
+  if (typeof window.currentTurn !== 'undefined') {
+    if (window.currentTurn === 1) {
       guideJa.textContent = 'AIに挨拶をする';
       guideEn.textContent = 'Say hello to AI.';
-    } else if (currentTurn === 3) {
+    } else if (window.currentTurn === 3) {
       guideJa.textContent = '詩の感想を述べる';
       guideEn.textContent = 'Express your feeling about the poem.';
-    } else if (currentTurn === 5) {
+    } else if (window.currentTurn === 5) {
       guideJa.textContent = 'さよならの挨拶をする';
       guideEn.textContent = 'Say goodbye.';
     } else {
