@@ -37,20 +37,24 @@
     </div>
     <div class="c-choices js-choices">
       <button class="c-choice js-choice">
-        <span class="c-choice-arrow">▶</span>
-        <span class="c-choice-ja">ありがとう</span>
-        <span class="c-choice-en">Thank you</span>
+        <span class="c-choice__arrow">▶</span>
+        <span class="c-choice__ja">ありがとう</span>
+        <span class="c-choice__en">Thank you</span>
       </button>
       <button class="c-choice js-choice">
-        <span class="c-choice-arrow">▶</span>
-        <span class="c-choice-ja">さようなら</span>
-        <span class="c-choice-en">Goodbye</span>
+        <span class="c-choice__arrow">▶</span>
+        <span class="c-choice__ja">さようなら</span>
+        <span class="c-choice__en">Goodbye</span>
       </button>
       <button class="c-choice js-choice">
-        <span class="c-choice-arrow">▶</span>
-        <span class="c-choice-ja">また会える？</span>
-        <span class="c-choice-en">Will we meet again?</span>
+        <span class="c-choice__arrow">▶</span>
+        <span class="c-choice__ja">また会える？</span>
+        <span class="c-choice__en">Will we meet again?</span>
       </button>
+    </div>
+    <div class="c-user-input">
+      <input type="text" class="c-user-input__field js-choice-input" maxlength="10" placeholder="自由入力（10文字まで）">
+      <button class="c-user-input__btn" type="button">SEND</button>
     </div>
   </div>
   <footer class="o-footer footer"><a href="https://github.com/am1129/" target="_blank">©am1129, 2025</a></footer>
