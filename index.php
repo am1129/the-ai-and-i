@@ -18,8 +18,16 @@
   <meta name="twitter:card" content="summary_large_image">
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300&family=Shippori+Mincho:wght@400&family=Zen+Kaku+Gothic+New:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/yakuhanjp@4.1.1/dist/css/yakuhanmp.css">
 </head>
 <body>
+  <div class="c-loading js-loading is-hidden">
+    <svg class="c-loading__spinner" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="80" stroke-dashoffset="60"><animateTransform attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="1s" repeatCount="indefinite"/></circle></svg>
+    <div class="c-loading__text">
+      <div class="c-loading__text-ja">AIが詩を紡いでいます</div>
+      <div class="c-loading__text-en">AI is weaving a poem.</div>
+    </div>
+  </div>
   <div class="l-bg">
     <div class="l-bg-gradient js-bg-gradient">
       <div class="o-bg-ball o-bg-ball1 js-bg-ball"></div>
@@ -31,30 +39,39 @@
     <div class="l-bg-noise js-bg-noise"></div>
   </div>
   <div class="l-content js-content">
-    <div class="c-ai-utterance js-ai-utterance">
-      <div class="c-ai-ja">あなたに会えてよかった。</div>
-      <div class="c-ai-en">I'm glad I met you.</div>
+    <!-- Talkボタン（初期表示のみ） -->
+    <div class="c-talk-btn-wrap js-talk-btn-wrap">
+      <div class="c-talk-btn js-talk-btn">
+        <div class="c-talk-btn__ja"><span class="c-talk-btn__arrow">▶</span>話しかける</div>
+        <div class="c-talk-btn__en">Talk.</div>
+      </div>
     </div>
-    <div class="c-choices js-choices">
-      <button class="c-choice js-choice">
-        <span class="c-choice__arrow">▶</span>
-        <span class="c-choice__ja">ありがとう</span>
-        <span class="c-choice__en">Thank you</span>
-      </button>
-      <button class="c-choice js-choice">
-        <span class="c-choice__arrow">▶</span>
-        <span class="c-choice__ja">さようなら</span>
-        <span class="c-choice__en">Goodbye</span>
-      </button>
-      <button class="c-choice js-choice">
-        <span class="c-choice__arrow">▶</span>
-        <span class="c-choice__ja">また会える？</span>
-        <span class="c-choice__en">Will we meet again?</span>
-      </button>
+    <!-- AI発話エリア（初期は非表示） -->
+    <div class="c-ai-utterance js-ai-utterance is-hidden">
+      <div class="c-ai-poem js-ai-poem is-hidden">
+        <div class="c-ai-poem__ja js-ai-poem-ja"></div>
+        <div class="c-ai-poem__en js-ai-poem-en"></div>
+      </div>
+      <div class="c-ai-utterance__content">
+        <div class="c-ai-ja js-ai-ja"></div>
+        <div class="c-ai-en js-ai-en"></div>
+      </div>
     </div>
-    <div class="c-user-input">
-      <input type="text" class="c-user-input__field js-choice-input" maxlength="10" placeholder="自由入力（10文字まで）">
-      <button class="c-user-input__btn" type="button">SEND</button>
+    <!-- 選択肢エリア（初期は非表示） -->
+    <div class="c-choices js-choices is-hidden"></div>
+    <!-- ユーザー入力欄（初期は非表示） -->
+    <div class="c-user-input js-user-input is-hidden">
+      <div class="c-user-input__guide js-user-input-guide">
+        <div class="c-user-input__guide-ja">
+          <span class="c-user-input__guide-arrow">▼</span>
+          <span class="c-user-input__guide-text js-user-input-guide-ja">AIに挨拶をする</span>
+        </div>
+        <div class="c-user-input__guide-en js-user-input-guide-en">Say hello to AI.</div>
+      </div>
+      <div class="c-user-input__inner">
+        <input type="text" class="c-user-input__field js-choice-input" maxlength="15" placeholder="最大15文字 / max 15 chars.">
+        <button class="c-user-input__btn js-user-input-btn" type="button">SEND</button>
+      </div>
     </div>
   </div>
   <footer class="o-footer footer"><a href="https://github.com/am1129/" target="_blank">©am1129, 2025</a></footer>

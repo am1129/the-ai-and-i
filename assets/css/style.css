@@ -5,7 +5,7 @@
   --color-border: rgba(204,204,204,0.5);
   --color-choice-bg: rgba(255,255,255,0.2);
   --color-choice-bg-hover: rgba(255,255,255,0.35);
-  --font-ja: 'Shippori Mincho', serif;
+  --font-ja: YakuHanMP, 'Shippori Mincho', serif;
   --font-en: 'Inter', sans-serif;
   --font-ja-sans: 'Zen Kaku Gothic New', sans-serif;
 }
@@ -74,7 +74,7 @@ body {
 .l-content {
   position: relative;
   z-index: 2;
-  width: 95%;
+  width: 80%;
   margin: 0 auto;
   height: calc(100vh - 24px);
   display: flex;
@@ -84,7 +84,7 @@ body {
 }
 @media (max-width: 768px) {
   .l-content {
-    width: 90%;
+    width: 85%;
   }
 }
 
@@ -93,6 +93,7 @@ body {
   flex-direction: column;
   align-items: center;
   margin: auto;
+  padding-bottom: 100px;
 }
 .c-ai-ja, .c-ai-en {
   /* タイプライター用にJSでtextContentを制御するのでoverflowは不要 */
@@ -100,14 +101,15 @@ body {
 .c-ai-ja {
   font-family: var(--font-ja);
   font-size: clamp(24px, 5vw, 40px);
-  line-height: 1.3;
+  line-height: 1.5;
   text-align: center;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.02em;
   color: var(--color-text);
 }
 .c-ai-en {
   font-family: var(--font-en);
   font-size: clamp(12px, 2vw, 16px);
+  line-height: 1.3;
   color: var(--color-gray);
   margin-top: 8px;
   text-align: center;
@@ -119,21 +121,24 @@ body {
   flex-wrap: wrap;
   gap: 16px;
   justify-content: center;
-  margin-bottom: 80px;
+  position: absolute;
+  left: 50%;
+  bottom: 60px;
+  transform: translateX(-50%);
 }
 @media (max-width: 768px) {
   .c-choices {
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    margin-bottom: 40px;
+    bottom: 40px;
   }
 }
 .c-choice {
   display: flex;
   align-items: center;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--color-choice-bg);
   backdrop-filter: blur(6px);
   padding: 6px 18px 6px 12px;
@@ -203,17 +208,57 @@ body {
 }
 
 .c-user-input {
+  width: 100%;
+  max-width: 400px;
+  position: absolute;
+  left: 50%;
+  bottom: 60px;
+  transform: translateX(-50%);
+}
+@media (max-width: 768px) {
+  .c-user-input {
+    bottom: 40px;
+  }
+}
+.c-user-input__guide {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 10px;
-  margin: 0 auto 80px auto;
-  max-width: 340px;
+  gap: 5px;
+  margin-bottom: 0.5em;
+}
+.c-user-input__guide-ja {
+  font-family: var(--font-ja-sans);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+}
+.c-user-input__guide-arrow {
+  color: var(--color-gray);
+  font-size: 8px;
+  line-height: 20px;
+  margin-right: 5px;
+  font-family: var(--font-ja-sans);
+  letter-spacing: 0.01em;
+}
+.c-user-input__guide-en {
+  font-family: var(--font-en);
+  font-size: 11px;
+  line-height: 20px;
+  color: var(--color-gray);
+  letter-spacing: 0.03em;
+}
+
+.c-user-input__inner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .c-user-input__field {
   flex: 1 1 0;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--color-choice-bg);
   backdrop-filter: blur(6px);
   padding: 6px 18px 6px 12px;
@@ -238,12 +283,13 @@ body {
 }
 .c-user-input__btn {
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--color-choice-bg);
   backdrop-filter: blur(6px);
   padding: 6px 18px;
   font-family: var(--font-en);
   font-size: 13px;
+  letter-spacing: 0;
   color: var(--color-text);
   cursor: pointer;
   transition: box-shadow 0.5s, background 0.3s;
@@ -255,6 +301,61 @@ body {
 .c-user-input__btn:hover, .c-user-input__btn:focus {
   box-shadow: 2px 2px 10px rgba(0,0,0,0.05);
   background: var(--color-choice-bg-hover);
+}
+.c-talk-btn-wrap{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.c-talk-btn{
+  font-family: var(--font-en);
+  font-size: 16px;
+  line-height: 20px;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  transition: box-shadow 0.5s, background 0.3s;
+  box-shadow: 0px 0px 0px rgba(0,0,0,0);
+  height: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-choice-bg);
+  backdrop-filter: blur(6px);
+  padding: 15px 30px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.c-talk-btn:hover{
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+  background: var(--color-choice-bg-hover);
+}
+.c-talk-btn__ja{
+  font-family: var(--font-ja-sans);
+  font-size: 14px;
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+}
+.c-talk-btn__arrow{
+  color: var(--color-gray);
+  font-size: 8px;
+  line-height: 20px;
+  margin-right: 5px;
+  font-family: var(--font-ja-sans);
+  transition: color 0.5s ease-out;
+}
+.c-talk-btn:hover .c-talk-btn__arrow{
+  color: var(--color-text);
+}
+.c-talk-btn__en{
+  font-family: var(--font-en);
+  font-size: 12px;
+  color: var(--color-gray);
+  letter-spacing: 0.03em;
 }
 @media (max-width: 768px) {
   .c-choices {
@@ -276,4 +377,69 @@ body {
     min-width: 0;
     max-width: 100%;
   }
+}
+
+.is-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.5s;
+}
+.is-shown {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transition: opacity 0.5s;
+}
+.c-ai-poem {
+  margin-top: 30px;
+}
+
+.c-ai-poem__ja {
+  font-family: var(--font-ja);
+  font-size: clamp(18px, 4.5vw, 28px);
+  line-height: 1.5;
+  text-align: center;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  font-style: italic;
+}
+.c-ai-poem__en {
+  font-family: var(--font-en);
+  font-size: clamp(10px, 1.5vw, 14px);
+  line-height: 1.3;
+  color: var(--color-gray);
+  margin-top: 8px;
+  text-align: center;
+  letter-spacing: 0.03em;
+  font-style: italic;
+}
+
+.c-loading {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+  transition: opacity 0.3s;
+}
+.c-loading__spinner {
+  margin-bottom: 1em;
+  display: block;
+}
+.c-loading__text {
+  text-align: center;
+}
+.c-loading__text-ja {
+  font-family: var(--font-ja-sans);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+.c-loading__text-en {
+  margin-top: 5px;
+  font-family: var(--font-en);
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--color-gray);
 }
