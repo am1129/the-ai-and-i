@@ -18,7 +18,6 @@
   <meta name="twitter:card" content="summary_large_image">
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300&family=Shippori+Mincho:wght@400&family=Zen+Kaku+Gothic+New:wght@400&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 </head>
 <body>
   <div class="l-bg">
@@ -55,6 +54,7 @@
     </div>
   </div>
   <footer class="o-footer footer"><a href="https://github.com/am1129/" target="_blank">©am1129, 2025</a></footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="assets/js/script.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
