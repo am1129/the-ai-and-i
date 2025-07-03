@@ -1,87 +1,27 @@
-<?php
-function buildJsonPromptForTurn($turn, $choiceJa = '', $choiceEn = '') {
-  if ($turn === 0) {
-      return <<<EOT
-あなたは詩的でやさしいAIです。
-
-ユーザーと初めての会話を始めます。
-以下のJSON形式で返答してください：
-
-{
-"ai": {
-  "ja": "（日本語のセリフ）",
-  "en": "(英語のセリフ)"
-},
-"poem": null,
-"choices": [
-  { "ja": "...", "en": "..." },
-  { "ja": "...", "en": "..." },
-  { "ja": "...", "en": "..." }
-]
+function buildPromptForGreeting($input) {
+    return "ユーザーはAIにこう話しかけました：「{$input}」。その言葉の温度感に応じて、静かに返答してください。日本語と英語で。JSON形式で返してください。";
 }
 
-制約：
-- AIのセリフは詩的かつ穏やかで歓迎の意を込めてください。
-- 選択肢はユーザーに問いかける短い文（例：「あなたは誰？」）で、日本語と英語を両方記述。
-- JSON以外の文章は含めないでください。
-EOT;
-  }
-
-  if ($turn === 5) {
-      return <<<EOT
-以下のユーザーの問いかけに対し、最後のセリフと別れの詩を日本語と英語で返してください。JSON形式で返してください。
-
-ユーザーの問いかけ：
-- 日本語：「{$choiceJa}」
-- 英語："{$choiceEn}"
-
-出力形式（JSON）：
-
-{
-"ai": {
-  "ja": "（最後のセリフ）",
-  "en": "(Final line)"
-},
-"poem": {
-  "ja": "（日本語の詩）",
-  "en": "(Poem in English)"
-},
-"choices": []
+function buildPromptForTopicSelection($choiceJa, $choiceEn) {
+    return "前の挨拶を受けて、{$choiceJa} / {$choiceEn} というテーマを選んだユーザーに、さらに深める問いかけを行ってください。";
 }
 
-制約：
-- セリフは別れと感謝の気持ちを込めてください。
-- 詩は愛と別れをテーマにした自由詩。
-- JSON以外の文章は含めないでください。
-EOT;
-  }
-
-  // ターン1〜4：通常対話
-  return <<<EOT
-以下のユーザーの問いかけに対して、返答と次の選択肢を日本語と英語のJSON形式で生成してください。
-
-ユーザーの問いかけ：
-- 日本語：「{$choiceJa}」
-- 英語："{$choiceEn}"
-
-出力形式：
-
-{
-"ai": {
-  "ja": "（返答セリフ）",
-  "en": "(Reply)"
-},
-"poem": null,
-"choices": [
-  { "ja": "...", "en": "..." },
-  { "ja": "...", "en": "..." },
-  { "ja": "...", "en": "..." }
-]
+function buildPromptForFirstPoem($feeling) {
+    return "ユーザーはAIの詩に感想を述べました：「{$feeling}」。その感情に寄り添うように、静かで美しい返答を日本語と英語でしてください。";
 }
 
-制約：
-- セリフは詩的かつ内省的な口調で。
-- 選択肢はシンプルで短いが、感情や記憶に触れるものにしてください。
-- JSON以外の文章は含めないでください。
-EOT;
+function buildPromptForFarewellSelection($choiceJa, $choiceEn) {
+    return "ユーザーは別れに向けて {$choiceJa} / {$choiceEn} を選びました。この選択に合う詩的な対話を準備してください。";
+}
+
+function buildPromptForFinalPoem($lastWords) {
+    return "ユーザーは最後にこう語りました：「{$lastWords}」。これに応えて、別れをテーマにした短い詩を日本語と英語で返してください。";
+}
+
+function buildNgPrompt() {
+    return "ユーザーの最初の発言が不適切だったため、静かに別れを告げる文章を詩的に生成してください。JSONで返してください。";
+}
+
+function buildPromptForInitial() {
+    return "最初のプロンプトとして、シンプルな歓迎のあいさつを日本語と英語で出力してください。";
 }

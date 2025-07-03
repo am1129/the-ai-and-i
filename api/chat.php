@@ -1,60 +1,90 @@
 <?php
-require_once(__DIR__ . '/prompts.php');
+require_once 'prompts.php';
+
 header('Content-Type: application/json');
 
-// 環境変数の読み込み（.env 対応）
-function loadEnv($path) {
-  $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-  foreach ($lines as $line) {
-    if (str_starts_with(trim($line), '#')) continue;
-    list($key, $value) = explode('=', $line, 2);
-    putenv(trim($key) . '=' . trim($value));
+// POSTから取得
+$input = json_decode(file_get_contents('php://input'), true);
+$turn = (int)($input['turn'] ?? 0);
+$userInput = trim($input['user_input'] ?? '');
+$choiceJa = $input['choice']['ja'] ?? '';
+$choiceEn = $input['choice']['en'] ?? '';
+$history = $input['messages'] ?? [];
+
+// NGワード・インジェクションワードの読み込み
+$ngWords = require 'ngwords.php';
+$injectWords = require 'inject_words.php';
+
+// ターン1限定の不正検知
+$isNg = false;
+if ($turn === 1) {
+  $combinedCheckWords = array_merge($ngWords, $injectWords);
+  foreach ($combinedCheckWords as $word) {
+    if (mb_stripos($userInput, $word) !== false) {
+      $isNg = true;
+      break;
+    }
   }
 }
-loadEnv(__DIR__ . '/.env');
 
-$apiKey = getenv('OPENAI_API_KEY');
-$model = getenv('OPENAI_MODEL') ?: 'gpt-4o';
-
-// 入力を受け取る
-$input = json_decode(file_get_contents('php://input'), true);
-$messages = $input['messages'] ?? null;
-
-if (!$messages) {
-  // messagesが来てなかったら、単発のやり取りとみなして生成
-  $turn = (int) ($input['turn'] ?? 0);
-  $choiceJa = $input['choice']['ja'] ?? '';
-  $choiceEn = $input['choice']['en'] ?? '';
-  $prompt = buildJsonPromptForTurn($turn, $choiceJa, $choiceEn);
+// プロンプト構築
+if ($isNg) {
+  $prompt = buildNgPrompt();
   $messages = [
-    ['role' => 'system', 'content' => 'あなたは詩的でやさしいAIです。'],
+    ['role' => 'system', 'content' => 'あなたは詩的で静かなAIです。'],
     ['role' => 'user', 'content' => $prompt]
   ];
+} else {
+    switch ($turn) {
+        case 1:
+            $prompt = buildPromptForGreeting($userInput);
+            break;
+        case 2:
+            $prompt = buildPromptForTopicSelection($choiceJa, $choiceEn);
+            break;
+        case 3:
+            $prompt = buildPromptForFirstPoem($userInput);
+            break;
+        case 4:
+            $prompt = buildPromptForFarewellSelection($choiceJa, $choiceEn);
+            break;
+        case 5:
+            $prompt = buildPromptForFinalPoem($userInput);
+            break;
+        default:
+            $prompt = buildPromptForInitial();
+            break;
+    }
+
+    $messages = array_merge(
+        [['role' => 'system', 'content' => 'あなたは詩的で静かなAIです。']],
+        $history,
+        [['role' => 'user', 'content' => $prompt]]
+    );
 }
 
-// ChatGPT APIに送信
-$ch = curl_init('https://api.openai.com/v1/chat/completions');
-curl_setopt_array($ch, [
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_HTTPHEADER => [
-    'Content-Type: application/json',
-    'Authorization: ' . 'Bearer ' . $apiKey
-  ],
-  CURLOPT_POST => true,
-  CURLOPT_POSTFIELDS => json_encode([
+// OpenAI API呼び出し
+$apiKey = getenv('OPENAI_API_KEY');
+$model = getenv('OPENAI_MODEL') ?: 'gpt-4.1-nano-2025-04-14';
+
+$payload = json_encode([
     'model' => $model,
     'messages' => $messages,
-    'temperature' => 0.7
-  ])
+    'temperature' => 0.8
+]);
+
+$ch = curl_init('https://api.openai.com/v1/chat/completions');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        "Content-Type: application/json",
+        "Authorization: Bearer $apiKey"
+    ],
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => $payload
 ]);
 
 $response = curl_exec($ch);
 curl_close($ch);
 
-$data = json_decode($response, true);
-$jsonString = $data['choices'][0]['message']['content'] ?? '{}';
-$result = json_decode($jsonString, true);
-
-// JSONとして返す
-echo json_encode($result, JSON_UNESCAPED_UNICODE);
-
+echo $response;
