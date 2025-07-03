@@ -1,16 +1,32 @@
-// ぼやけた円のランダム移動アニメーション（GSAP版）
-const balls = Array.from(document.querySelectorAll('.js-bg-ball'));
+// =========================
+// 初期化・関数呼び出し
+// =========================
 
-// 初期位置・サイズをランダムに設定
-balls.forEach(ball => {
-  const x = Math.random() * 60;
-  const y = Math.random() * 60;
-  const s = 24 + Math.random() * 16; // 24vw〜40vw
-  ball.style.left = x + 'vw';
-  ball.style.top = y + 'vh';
-  ball.style.width = s + 'vw';
-  ball.style.height = s + 'vw';
+document.addEventListener('DOMContentLoaded', () => {
+  initBackgroundBalls();
+  animateBackgroundGradient();
+  startTypewriterEffect();
+  // ここにAPI呼び出しやイベントリスナーの初期化を追加していく
 });
+
+// =========================
+// 関数定義
+// =========================
+
+// 背景のぼやけた円の初期化とアニメーション
+function initBackgroundBalls() {
+  const balls = Array.from(document.querySelectorAll('.js-bg-ball'));
+  balls.forEach(ball => {
+    const x = Math.random() * 60;
+    const y = Math.random() * 60;
+    const s = 24 + Math.random() * 16; // 24vw〜40vw
+    ball.style.left = x + 'vw';
+    ball.style.top = y + 'vh';
+    ball.style.width = s + 'vw';
+    ball.style.height = s + 'vw';
+  });
+  balls.forEach(ball => moveBall(ball));
+}
 
 function moveBall(ball) {
   const x = Math.random() * 60;
@@ -28,15 +44,13 @@ function moveBall(ball) {
   });
 }
 
-balls.forEach(ball => moveBall(ball));
-
-// グラデーション角度アニメーション
-const bgGradient = document.querySelector('.js-bg-gradient');
-if (bgGradient) {
-  // CSS変数で角度を管理
+// グラデーション背景アニメーション
+function animateBackgroundGradient() {
+  const bgGradient = document.querySelector('.js-bg-gradient');
+  if (!bgGradient) return;
   bgGradient.style.setProperty('--gradient-angle', '120deg');
   gsap.to(bgGradient, {
-    '--gradient-angle': '480deg', // 120→480deg（1周）
+    '--gradient-angle': '480deg',
     duration: 60,
     repeat: -1,
     ease: 'linear',
@@ -50,23 +64,8 @@ if (bgGradient) {
   });
 }
 
-// タイプライター風アニメーション
-function typewriterText(element, text, duration, onComplete) {
-  let i = 0;
-  function showNext() {
-    if (i <= text.length) {
-      element.textContent = text.slice(0, i) + '_';
-      i++;
-      setTimeout(showNext, duration); // 1文字40ms
-    } else {
-      element.textContent = text; // _を消す
-      if (onComplete) onComplete();
-    }
-  }
-  showNext();
-}
-
-window.addEventListener('DOMContentLoaded', () => {
+// タイプライター演出と選択肢表示
+function startTypewriterEffect() {
   const aiJa = document.querySelector('.c-ai-ja');
   const aiEn = document.querySelector('.c-ai-en');
   const aiJaText = aiJa ? aiJa.textContent : '';
@@ -80,21 +79,47 @@ window.addEventListener('DOMContentLoaded', () => {
     if (finishedCount === 2) showChoices();
   }
 
-  // 日本語・英語を同時にタイプライター表示
   typewriterText(aiJa, aiJaText, 100, onTypewriterFinished);
   typewriterText(aiEn, aiEnText, 80, onTypewriterFinished);
+}
 
-  function showChoices() {
-    const choices = document.querySelectorAll('.c-choice');
-    choices.forEach((choice, idx) => {
-      gsap.to(choice, {
-        opacity: 1,
-        y: 0,
-        filter: 'blur(0px)',
-        duration: 1,
-        delay: 0.2 * idx,
-        onStart: () => choice.classList.add('is-visible')
-      });
-    });
+function typewriterText(element, text, duration, onComplete) {
+  if (!element) return;
+  let i = 0;
+  function showNext() {
+    if (i <= text.length) {
+      element.textContent = text.slice(0, i) + '_';
+      i++;
+      setTimeout(showNext, duration);
+    } else {
+      element.textContent = text;
+      if (onComplete) onComplete();
+    }
   }
-});
+  showNext();
+}
+
+function showChoices() {
+  const choices = document.querySelectorAll('.c-choice');
+  choices.forEach((choice, idx) => {
+    gsap.to(choice, {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      duration: 1,
+      delay: 0.2 * idx,
+      onStart: () => choice.classList.add('is-visible')
+    });
+  });
+}
+
+// =========================
+// 今後のAPI呼び出しや履歴管理用の変数
+// =========================
+
+const history = [
+  { role: 'system', content: 'あなたは詩的でやさしいAIです。' },
+  { role: 'user', content: '最初のプロンプト' },
+  { role: 'assistant', content: '最初の返答' },
+  { role: 'user', content: '次の選択肢をクリックしたときのプロンプト' },
+];
