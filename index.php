@@ -16,11 +16,15 @@
   <meta property="og:locale" content="ja_JP">
   <meta property="og:site_name" content="The AI and I">
   <meta name="twitter:card" content="summary_large_image">
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300&family=Shippori+Mincho:wght@400&family=Zen+Kaku+Gothic+New:wght@400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/yakuhanjp@4.1.1/dist/css/yakuhanmp.css">
+
+  <?php include 'assets/includes/head-webfonts.php'; ?>
+
+  <?php include 'assets/includes/head-analytics.php'; ?>
 </head>
+
 <body>
+  <?php include 'assets/includes/body-analytics.php'; ?>
+
   <div class="c-loading js-loading is-hidden">
     <svg class="c-loading__spinner" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="80" stroke-dashoffset="60"><animateTransform attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="1s" repeatCount="indefinite"/></circle></svg>
     <div class="c-loading__text">
