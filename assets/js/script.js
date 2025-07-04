@@ -1,7 +1,7 @@
 // =========================
 // デバッグモード切り替え
 // =========================
-const isDebug = true;
+const isDebug = false;
 
 // =========================
 // 初期化・関数呼び出し
@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
       onComplete: () => {
         // h2のis-hiddenを外してfadeInWithBlur
         talkSubTitle.classList.remove('is-hidden');
-        fadeInWithBlur(talkSubTitle, { duration: 0.8 }).then(() => {
-          showElementFade(document.querySelector('.js-talk-btn-parent'));
+        fadeInWithBlur(talkSubTitle, { duration: 1 }).then(() => {
+          fadeInWithBlur(document.querySelector('.js-talk-btn-parent'), { duration: 1 })
         });
       }
     });

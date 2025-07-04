@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title>The AI and I.</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
   <link rel="icon" href="assets/images/favicon.ico">
   <link rel="canonical" href="https://am1129.work/the-ai-and-i/">
   <meta name="description" content="The AI and I. He/she is here, for now.">
 
-  <meta property="og:title" content="The AI and I">
+  <meta property="og:title" content="The AI and I.">
   <meta property="og:description" content="The AI and I. He/she is here, for now.">
   <meta property="og:image" content="https://am1129.work/the-ai-and-i/assets/images/ogp.png">
   <meta property="og:url" content="https://am1129.work/the-ai-and-i/">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ja_JP">
-  <meta property="og:site_name" content="The AI and I">
+  <meta property="og:site_name" content="The AI and I.">
   <meta name="twitter:card" content="summary_large_image">
 
   <?php include 'assets/includes/head-webfonts.php'; ?>
@@ -50,7 +50,7 @@
     <!-- Talkボタン（初期表示のみ） -->
     <div class="c-first-screen js-first-screen">
       <h1 class="c-first-screen__title js-main-title is-hidden">The AI and I.</h1>
-      <h2 class="c-first-screen__subtitle js-main-subtitle is-hidden">対話は一度きりです。This conversation will happen only once.
+      <h2 class="c-first-screen__subtitle js-main-subtitle is-hidden">対話は一度きりです。<br class="u-only-sp">This conversation will happen only once.
       </h2>
       <div class="c-first-screen__btn js-talk-btn-parent is-hidden">
         <div class="c-talk-btn js-talk-btn">
