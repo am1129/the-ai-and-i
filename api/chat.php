@@ -45,19 +45,19 @@ if ($isNg) {
   ];
 } else {
   switch ($turn) {
-    case 1:
+    case 2:
       $prompt = buildPromptForGreeting($userInput);
       break;
-    case 2:
+    case 3:
       $prompt = buildPromptForTopicSelection($choiceJa, $choiceEn);
       break;
-    case 3:
+    case 4:
       $prompt = buildPromptForFirstPoem($userInput);
       break;
-    case 4:
+    case 5:
       $prompt = buildPromptForFarewellSelection($choiceJa, $choiceEn);
       break;
-    case 5:
+    case 6:
       $prompt = buildPromptForFinalPoem($userInput);
       break;
     default:
@@ -97,6 +97,7 @@ echo $response;
 
 // ===== Moderation API 呼び出し関数 =====
 function callModerationAPI(string $text): array {
+  global $apiKey;
   $ch = curl_init('https://api.openai.com/v1/moderations');
   curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,

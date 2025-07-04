@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Talkボタン押下時の処理
   document.querySelector('.js-talk-btn').addEventListener('click', async () => {
+    // Talkボタンを消す
+    hideElementFade(document.querySelector('.js-talk-btn-wrap'));
     showLoading();
     const apiResponse = await (isDebug ? fetchAiGreetingDummy() : fetchAiGreeting());
     hideLoading();
@@ -48,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 送信ボタンの処理をターンごとに分岐
-  window.currentTurn = 0;
+  window.currentTurn = 1;
   // セッション終了フラグ
   const SESSION_KEY = 'the_ai_and_i_ended';
   if (sessionStorage.getItem(SESSION_KEY)) {
@@ -109,8 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('.js-choices').addEventListener('click', async (e) => {
     const btn = e.target.closest('.js-choice');
     if (!btn) return;
-    const choiceJa = btn.querySelector('.c-choice__ja')?.textContent || '';
-    const choiceEn = btn.querySelector('.c-choice__en')?.textContent || '';
+    const choiceJa = btn.querySelector('.js-choice-ja')?.textContent || '';
+    const choiceEn = btn.querySelector('.js-choice-en')?.textContent || '';
     hideElementFade(document.querySelector('.js-choices'));
     // Turn2: テーマ選択→詩生成、Turn4: 別れテーマ選択→最終詩
     let turnForChoice = window.currentTurn;
@@ -140,6 +142,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.currentTurn++;
       } else if (window.currentTurn === 4) {
         showUserInputAnimated();
+        window.currentTurn++;
+      } else if (window.currentTurn === 5) {
+        // Turn5でお別れの言葉入力→最終詩表示→AIが去る
+        showFinalGoodbye();
+        sessionStorage.setItem(SESSION_KEY, '1');
         window.currentTurn++;
       } else {
         showUserInputAnimated();
@@ -227,8 +234,8 @@ function animateBackgroundGradient() {
 
 // タイプライター演出と選択肢表示
 function startTypewriterEffect(onAllFinished) {
-  const aiJa = document.querySelector('.c-ai-ja');
-  const aiEn = document.querySelector('.c-ai-en');
+  const aiJa = document.querySelector('.js-ai-ja');
+  const aiEn = document.querySelector('.js-ai-en');
   const poemJa = document.querySelector('.js-ai-poem-ja');
   const poemEn = document.querySelector('.js-ai-poem-en');
   const aiJaText = aiJa ? aiJa.textContent : '';
@@ -273,7 +280,7 @@ function typewriterText(element, text, duration, onComplete) {
 }
 
 function showChoices() {
-  const choices = document.querySelectorAll('.c-choice');
+  const choices = document.querySelectorAll('.js-choice');
   choices.forEach((choice, idx) => {
     gsap.to(choice, {
       opacity: 1,
@@ -291,33 +298,29 @@ function showUserInputAnimated() {
   const userInput = document.querySelector('.js-user-input');
   const guideJa = document.querySelector('.js-user-input-guide-ja');
   const guideEn = document.querySelector('.js-user-input-guide-en');
-  // 7ターン目以降は入力欄を非表示
   if (typeof window.currentTurn !== 'undefined' && window.currentTurn > 6) {
-    userInput.classList.add('is-hidden');
+    hideElementFade(userInput);
     guideJa.textContent = '';
     guideEn.textContent = '';
     return;
   }
-  if(typeof window.currentTurn !== 'undefined' ) {
-    console.log(window.currentTurn);
-  }
-  // ターンごとにガイド文言を切り替え
+  // デフォルトはTurn1のガイド
+  let jaText = 'AIに挨拶をする';
+  let enText = 'Say hello to AI.';
   if (typeof window.currentTurn !== 'undefined') {
-    if (window.currentTurn === 1) {
-      guideJa.textContent = 'AIに挨拶をする';
-      guideEn.textContent = 'Say hello to AI.';
-    } else if (window.currentTurn === 3) {
-      guideJa.textContent = '詩の感想を述べる';
-      guideEn.textContent = 'Express your feeling about the poem.';
-    } else if (window.currentTurn === 5) {
-      guideJa.textContent = 'さよならの挨拶をする';
-      guideEn.textContent = 'Say goodbye.';
-    } else {
-      guideJa.textContent = '';
-      guideEn.textContent = '';
+    if (window.currentTurn === 2) {
+      jaText = '詩の感想を述べる';
+      enText = 'Express your feeling about the poem.';
+    } else if (window.currentTurn === 4) {
+      jaText = 'さよならの挨拶をする';
+      enText = 'Say goodbye.';
     }
   }
+  guideJa.textContent = jaText;
+  guideEn.textContent = enText;
+  // is-hidden→is-shownの切り替えを確実に
   userInput.classList.remove('is-hidden');
+  userInput.classList.add('is-shown');
   gsap.fromTo(userInput, {
     opacity: 0,
     y: 20,
@@ -383,8 +386,8 @@ function renderChoices(choices) {
     btn.className = 'c-choice js-choice';
     btn.innerHTML = `
       <span class="c-choice__arrow">▶</span>
-      <span class="c-choice__ja">${choice.ja || ''}</span>
-      <span class="c-choice__en">${choice.en || ''}</span>
+      <span class="c-choice__ja js-choice-ja">${choice.ja || ''}</span>
+      <span class="c-choice__en js-choice-en">${choice.en || ''}</span>
     `;
     choicesWrap.appendChild(btn);
   });
@@ -394,7 +397,7 @@ function renderChoices(choices) {
 function showChoicesAnimated() {
   const choicesWrap = document.querySelector('.js-choices');
   choicesWrap.classList.remove('is-hidden');
-  const choices = choicesWrap.querySelectorAll('.c-choice');
+  const choices = choicesWrap.querySelectorAll('.js-choice');
   choices.forEach((choice, idx) => {
     gsap.fromTo(choice, {
       opacity: 0,
@@ -447,6 +450,7 @@ function showLoading() {
   hideElementFade(document.querySelector('.js-ai-utterance'));
   hideElementFade(document.querySelector('.js-choices'));
   hideElementFade(document.querySelector('.js-user-input'));
+  hideElementFade(document.querySelector('.js-talk-btn-wrap'));
   showElementFade(document.querySelector('.js-loading'));
 }
 function hideLoading() {
