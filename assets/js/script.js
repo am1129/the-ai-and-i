@@ -502,7 +502,7 @@ function fetchAiGreetingDummy() {
   return debugDelay({
     choices: [
       { message: { content: JSON.stringify({
-        ai: { ja: 'こんにちは。私はAIです。', en: 'Hello. I am AI.' },
+        ai: { ja: 'こんにちは。私はAIです。あなたに会えて嬉しい。', en: 'Hello. I am AI. I am happy to meet you.' },
         poem: null,
         choices: []
       }) } }
@@ -513,12 +513,12 @@ function fetchAiGreetingWithInputDummy(userInput) {
   return debugDelay({
     choices: [
       { message: { content: JSON.stringify({
-        ai: { ja: `「${userInput}」ですね。どんな話をしましょうか？`, en: `You said: ${userInput}. What shall we talk about?` },
+        ai: { ja: `「${userInput}」ですね。私はあなたの愛の記憶について知りたいです。`, en: `You said: ${userInput}. I want to know about your love memories.` },
         poem: null,
         choices: [
-          { ja: '思い出', en: 'Memory' },
-          { ja: '未来', en: 'Future' },
-          { ja: '孤独', en: 'Loneliness' }
+          { ja: '子供の頃の思い出', en: 'Childhood memories' },
+          { ja: '家族との温かい時間', en: 'Warm family time' },
+          { ja: 'あなたのことが好き', en: 'I like you' }
         ]
       }) } }
     ]
@@ -530,7 +530,7 @@ function fetchAiWithChoiceDummy(choiceJa, choiceEn, turn) {
       choices: [
         { message: { content: JSON.stringify({
           ai: { ja: `「${choiceJa}」の詩を贈ります。`, en: `A poem about ${choiceEn}.` },
-          poem: { ja: '静かな夜に思い出がよみがえる。', en: 'Memories return on a quiet night.' },
+          poem: { ja: '静かに幕がおりる。別れの痛みが残る。それでも、愛が残る。', en: 'The curtain falls quietly. The pain of parting remains. But love remains.' },
           choices: []
         }) } }
       ]
@@ -561,12 +561,12 @@ function fetchAiWithUserInputDummy(userInput, turn) {
     return debugDelay({
       choices: [
         { message: { content: JSON.stringify({
-          ai: { ja: '感想ありがとう。', en: 'Thank you for your feeling.' },
+          ai: { ja: '感想ありがとう。私はもう去らなくてはいけません。あなたが教えてくれた愛の記憶とともに。', en: 'Thank you for your feeling. I have to leave now. With the love memories you taught me.' },
           poem: null,
           choices: [
-            { ja: '記憶', en: 'Memory' },
-            { ja: '永遠', en: 'Eternity' },
-            { ja: 'やさしさ', en: 'Kindness' }
+            { ja: 'まだ行かないで', en: 'Don\'t go yet' },
+            { ja: 'もう少し話したい', en: 'I want to talk more' },
+            { ja: '静かに手を振る', en: 'Wave goodbye quietly' }
           ]
         }) } }
       ]
@@ -575,8 +575,7 @@ function fetchAiWithUserInputDummy(userInput, turn) {
     return debugDelay({
       choices: [
         { message: { content: JSON.stringify({
-          ai: { ja: 'さよならの言葉、受け取りました。', en: 'I received your farewell.' },
-          poem: { ja: '静かに幕がおりる。', en: 'The curtain falls quietly.' },
+          ai: { ja: 'さよなら。もう会うことはありませんが、あなたの思い出の中に。', en: 'Goodbye. I will not see you again, but in your memories.' },
           choices: []
         }) } }
       ]
