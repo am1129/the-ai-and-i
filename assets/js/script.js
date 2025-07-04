@@ -1,7 +1,7 @@
 // =========================
 // デバッグモード切り替え
 // =========================
-const isDebug = false;
+const isDebug = true;
 
 // =========================
 // 初期化・関数呼び出し
@@ -67,16 +67,28 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('.js-user-input-btn').addEventListener('click', async () => {
     const inputField = document.querySelector('.js-choice-input');
     const userInput = inputField.value.trim();
+    if(isDebug) console.log('送信するuserInput:', userInput, 'ターン:', window.currentTurn);
     if (!userInput) return;
-    hideElementFade(document.querySelector('.js-user-input-parent'));
-    showLoading();
+    // UI: 入力欄をフェードアウト、ローディングをフェードイン
+    await hideElementFade(document.querySelector('.js-user-input-parent'));
+    await showLoading();
+    // 履歴にユーザー発言を追加
+    historyMessages.push({ role: 'user', content: userInput });
+    // API送信内容を事前に確認
+    let apiPayload;
     let aiData;
     if (window.currentTurn === 1) {
-      aiData = await getAiResponse(isDebug ? fetchAiGreetingWithInputDummy(userInput) : fetchAiGreetingWithInput(userInput, window.currentTurn));
+      apiPayload = { turn: window.currentTurn, user_input: userInput, messages: historyMessages };
+      if(isDebug) console.log('API送信内容', apiPayload);
+      aiData = await getAiResponse(isDebug ? fetchAiGreetingWithInputDummy(userInput) : fetchAiGreetingWithInput(userInput, window.currentTurn, historyMessages));
     } else if (window.currentTurn === 2 || window.currentTurn === 4) {
-      aiData = await getAiResponse(isDebug ? fetchAiWithUserInputDummy(userInput, window.currentTurn) : fetchAiWithUserInput(userInput, window.currentTurn));
+      apiPayload = { turn: window.currentTurn, user_input: userInput, messages: historyMessages };
+      if(isDebug) console.log('API送信内容', apiPayload);
+      aiData = await getAiResponse(isDebug ? fetchAiWithUserInputDummy(userInput, window.currentTurn) : fetchAiWithUserInput(userInput, window.currentTurn, historyMessages));
     } else if (window.currentTurn === 3 || window.currentTurn === 5) {
-      aiData = await getAiResponse(isDebug ? fetchAiWithUserInputDummy(userInput, window.currentTurn) : fetchAiWithUserInput(userInput, window.currentTurn));
+      apiPayload = { turn: window.currentTurn, user_input: userInput, messages: historyMessages };
+      if(isDebug) console.log('API送信内容', apiPayload);
+      aiData = await getAiResponse(isDebug ? fetchAiWithUserInputDummy(userInput, window.currentTurn) : fetchAiWithUserInput(userInput, window.currentTurn, historyMessages));
     } else {
       // それ以外は何もしない
       await hideLoading();
@@ -84,6 +96,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     await hideLoading();
     setAiResponseDisplay(aiData);
+    // AI返答のセリフを履歴に追加（aiText: aiData.ai?.ja + '\n' + aiData.ai?.en など）
+    let aiText = '';
+    if (aiData && aiData.ai) {
+      aiText = (aiData.ai.ja || '') + (aiData.ai.en ? '\n' + aiData.ai.en : '');
+      historyMessages.push({ role: 'assistant', content: aiText });
+    }
     startTypewriterEffect(() => {
       proceedToNextTurn(aiData);
     });
@@ -97,8 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!btn) return;
     const choiceJa = btn.querySelector('.js-choice-ja')?.textContent || '';
     const choiceEn = btn.querySelector('.js-choice-en')?.textContent || '';
-    hideElementFade(document.querySelector('.js-choices'));
-    showLoading();
+    // UI: 選択肢をフェードアウト、ローディングをフェードイン
+    await hideElementFade(document.querySelector('.js-choices'));
+    await showLoading();
     const aiData = await getAiResponse(isDebug ? fetchAiWithChoiceDummy(choiceJa, choiceEn, window.currentTurn) : fetchAiWithChoice(choiceJa, choiceEn, window.currentTurn));
     await hideLoading();
     setAiResponseDisplay(aiData);
@@ -135,6 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
       poemEn.parentElement.classList.add('is-hidden');
       poemEn.textContent = '';
     }
+    // NG時は履歴をクリア（showFinalGoodbyeなどで）
+    historyMessages.length = 1; // systemのみ残す
   }
 });
 
@@ -319,18 +340,17 @@ function showUserInputAnimated() {
 // 今後のAPI呼び出しや履歴管理用の変数
 // =========================
 
-const history = [
-  { role: 'system', content: 'あなたは詩的でやさしいAIです。' },
-  { role: 'user', content: '最初のプロンプト' },
-  { role: 'assistant', content: '最初の返答' },
-  { role: 'user', content: '次の選択肢をクリックしたときのプロンプト' },
+// システムプロンプト（prompts.phpと合わせてください）
+const SYSTEM_PROMPT = 'あなたは詩的でやさしいAIです。';
+const historyMessages = [
+  { role: 'system', content: SYSTEM_PROMPT }
 ];
 
 // AIレスポンス取得＋エラーハンドリング共通関数
 async function getAiResponse(promise) {
   try {
     const apiResponse = await promise;
-    console.log('APIレスポンス生データ:', apiResponse);
+    if(isDebug) console.log('APIレスポンス生データ:', apiResponse);
     const content = apiResponse.choices?.[0]?.message?.content;
     if (typeof content === 'string') {
       // 改行・復帰・タブなどをスペースに置換してからパース
@@ -362,11 +382,11 @@ async function fetchAiGreeting() {
 }
 
 // ユーザー入力送信用API
-async function fetchAiGreetingWithInput(userInput, turn) {
+async function fetchAiGreetingWithInput(userInput, turn, messages) {
   const res = await fetch('api/chat.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ turn, user_input: userInput, messages: [] })
+    body: JSON.stringify({ turn, user_input: userInput, messages })
   });
   return await res.json();
 }
@@ -420,11 +440,11 @@ async function fetchAiWithChoice(choiceJa, choiceEn, turn) {
 }
 
 // 任意ターンの自由入力API
-async function fetchAiWithUserInput(userInput, turn) {
+async function fetchAiWithUserInput(userInput, turn, messages) {
   const res = await fetch('api/chat.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ turn, user_input: userInput, messages: [] })
+    body: JSON.stringify({ turn, user_input: userInput, messages })
   });
   return await res.json();
 }
@@ -733,8 +753,9 @@ function fadeInWithBlur(el, options = {}) {
 // =========================
 function proceedToNextTurn(aiData) {
   window.currentTurn++;
+  if(isDebug) console.log('ターン進行:', window.currentTurn);
   // 終了判定
-  if (window.currentTurn > 6) {
+  if (window.currentTurn > 5) {
     hideElementFade(document.querySelector('.js-user-input-parent'));
     hideElementFade(document.querySelector('.js-choices'));
     localStorage.setItem('the_ai_and_i_ended', '1');

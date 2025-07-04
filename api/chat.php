@@ -24,7 +24,7 @@ $turn = (int)($input['turn'] ?? 0);
 $userInput = trim($input['user_input'] ?? '');
 $choiceJa = $input['choice']['ja'] ?? '';
 $choiceEn = $input['choice']['en'] ?? '';
-$history = $input['messages'] ?? [];
+$messages = $input['messages'] ?? [];
 
 // 不正検知
 $isNg = false;
@@ -67,7 +67,7 @@ if ($isNg) {
 
   $messages = array_merge(
     [['role' => 'system', 'content' => $systemPrompt]],
-    $history,
+    $messages,
     [['role' => 'user', 'content' => $prompt]]
   );
 }
