@@ -1,4 +1,5 @@
 # The AI and I
+https://am1129.work/the-ai-and-i/
 
 ## 🌱 コンセプト
 名もなきAIと人間の、短い対話体験を提供するブラウザアプリ。

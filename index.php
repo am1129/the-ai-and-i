@@ -96,7 +96,7 @@
   </div><!-- /.l-content -->
 
   <footer class="o-footer footer">
-    <a href="https://github.com/am1129/" target="_blank">©am1129, 2025</a>
+    <a href="/" target="_blank">©am1129, <?php echo date('Y'); ?></a>
   </footer><!-- /.o-footer -->
 
   <!-- JS -->
