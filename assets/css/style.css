@@ -95,10 +95,10 @@ body {
   margin: auto;
   padding-bottom: 100px;
 }
-.c-ai-ja, .c-ai-en {
+.c-ai-utterance__ja, .c-ai-utterance__en {
   /* タイプライター用にJSでtextContentを制御するのでoverflowは不要 */
 }
-.c-ai-ja {
+.c-ai-utterance__ja {
   font-family: var(--font-ja);
   font-size: clamp(24px, 5vw, 40px);
   line-height: 1.5;
@@ -106,7 +106,7 @@ body {
   letter-spacing: -0.02em;
   color: var(--color-text);
 }
-.c-ai-en {
+.c-ai-utterance__en {
   font-family: var(--font-en);
   font-size: clamp(12px, 2vw, 16px);
   line-height: 1.3;

@@ -49,8 +49,8 @@
     <!-- AI発話エリア（初期は非表示） -->
     <div class="c-ai-utterance js-ai-utterance is-hidden">
       <div class="c-ai-utterance__content">
-        <div class="c-ai-ja js-ai-ja"></div>
-        <div class="c-ai-en js-ai-en"></div>
+        <div class="c-ai-utterance__ja js-ai-ja"></div>
+        <div class="c-ai-utterance__en js-ai-en"></div>
       </div>
       <div class="c-ai-poem js-ai-poem is-hidden">
         <div class="c-ai-poem__ja js-ai-poem-ja"></div>
