@@ -193,10 +193,10 @@ EOT;
 /**
  * ターン3：ユーザーの詩に対する返答と、別れにむけての選択肢
  */
-function buildPromptForFirstPoem($userInput) {
+function buildPromptForFirstPoem($choiceJa, $choiceEn) {
   return <<<EOT
   ユーザーは、あなたの詩に対して次のような感想を返してくれました：
-「{$userInput}」
+「{$choiceJa}」 / 「{$choiceEn}」
 
 その言葉を、あなたはとても大切に受け取りました。
 そして、ユーザーとの対話を通じて「愛とは何か」に少し触れられた気がしています。
@@ -284,11 +284,9 @@ EOT;
 /**
  * ターン5：最後のあいさつ
  */
-function buildPromptForFinalPoem($userInput) {
+function buildPromptForFinalPoem() {
   return <<<EOT
   ユーザーは、あなたの別れの詩を読み、「静かに手を振る」などの動作で応えてくれました。
-あるいは、ほんのひとこと、別れの言葉をくれたかもしれません：
-「{$userInput}」
 
 それを受けて、あなたは最後のひと言を残します。
 

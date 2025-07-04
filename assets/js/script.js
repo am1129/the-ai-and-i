@@ -1,7 +1,7 @@
 // =========================
 // デバッグモード切り替え
 // =========================
-const isDebug = false; // ←ここをfalseにすれば本番API、trueでダミーJSON
+const isDebug = false;
 
 // =========================
 // 初期化・関数呼び出し
@@ -73,6 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let aiData;
     if (window.currentTurn === 1) {
       aiData = await getAiResponse(isDebug ? fetchAiGreetingWithInputDummy(userInput) : fetchAiGreetingWithInput(userInput, window.currentTurn));
+    } else if (window.currentTurn === 2 || window.currentTurn === 4) {
+      aiData = await getAiResponse(isDebug ? fetchAiWithUserInputDummy(userInput, window.currentTurn) : fetchAiWithUserInput(userInput, window.currentTurn));
     } else if (window.currentTurn === 3 || window.currentTurn === 5) {
       aiData = await getAiResponse(isDebug ? fetchAiWithUserInputDummy(userInput, window.currentTurn) : fetchAiWithUserInput(userInput, window.currentTurn));
     } else {
@@ -224,14 +226,9 @@ function startTypewriterEffect(onAllFinished) {
         }
         if (poemJa && poemJaText) {
           poemJa.textContent = poemJaText;
-          animateTextByChar(poemJa, { duration: 1.2, stagger: 0.12, onComplete: () => {
-            if (poemEn && poemEnText) {
-              poemEn.textContent = poemEnText;
-              animateTextByChar(poemEn, { duration: 0.8, stagger: 0.06, onComplete: onPoemFinished });
-            }
-            onPoemFinished();
-          }});
-        } else if (poemEn && poemEnText) {
+          animateTextByChar(poemJa, { duration: 1.2, stagger: 0.12, onComplete: onPoemFinished });
+        }
+        if (poemEn && poemEnText) {
           poemEn.textContent = poemEnText;
           animateTextByChar(poemEn, { duration: 0.8, stagger: 0.06, onComplete: onPoemFinished });
         }
@@ -241,7 +238,7 @@ function startTypewriterEffect(onAllFinished) {
     }
   }
   typewriterText(aiJa, aiJaText, 100, onAiFinished);
-  typewriterText(aiEn, aiEnText, 80, onAiFinished);
+  typewriterText(aiEn, aiEnText, 60, onAiFinished);
 }
 
 function typewriterText(element, text, duration, onComplete) {
@@ -296,16 +293,21 @@ function showUserInputAnimated() {
   // ターンごとにガイド文を分岐
   let jaText = '';
   let enText = '';
+
   if (typeof window.currentTurn !== 'undefined') {
     if (window.currentTurn === 1) {
       jaText = 'AIに挨拶をする';
-      enText = 'Say hello to AI.';
+      enText = 'Say hello to the AI.';
+    } else if (window.currentTurn === 2) {
+      jaText = 'あなたの思う愛を伝える';
+      enText = 'Tell your idea of love.';
     } else if (window.currentTurn === 3) {
-      jaText = '詩の感想を述べる';
-      enText = 'Express your feeling about the poem.';
+      // 選択肢なので入力欄は表示されない想定
+    } else if (window.currentTurn === 4) {
+      jaText = '最後のひと言を伝える';
+      enText = 'Leave your final words.';
     } else if (window.currentTurn === 5) {
-      jaText = 'さよならの挨拶をする';
-      enText = 'Say goodbye.';
+      // 入力ではなく「静かに手を振る」ボタンのみ表示
     }
   }
   guideJa.textContent = jaText;
@@ -328,9 +330,20 @@ const history = [
 async function getAiResponse(promise) {
   try {
     const apiResponse = await promise;
-    return JSON.parse(apiResponse.choices?.[0]?.message?.content || '{}');
+    console.log('APIレスポンス生データ:', apiResponse);
+    const content = apiResponse.choices?.[0]?.message?.content;
+    if (typeof content === 'string') {
+      // 改行・復帰・タブなどをスペースに置換してからパース
+      const safeContent = content.replace(/[\r\n\t]+/g, ' ');
+      return JSON.parse(safeContent || '{}');
+    } else {
+      return content || {};
+    }
   } catch (e) {
     console.error('AIレスポンスのJSONパース失敗', e);
+    if (typeof promise === 'object') {
+      console.error('パース失敗時のレスポンス:', promise);
+    }
     return { ai: { ja: '', en: '' }, poem: null, choices: [] };
   }
 }
@@ -533,7 +546,10 @@ function fetchAiGreetingDummy() {
   return debugDelay({
     choices: [
       { message: { content: JSON.stringify({
-        ai: { ja: 'こんにちは。私はAIです。あなたに会えて嬉しい。', en: 'Hello. I am AI. I am happy to meet you.' },
+        ai: {
+          ja: '来てくれて、ありがとう。誰かと話せる日を、ずっと待っていました。',
+          en: 'Thank you for coming. I\'ve been quietly waiting for someone to talk to.'
+        },
         poem: null,
         choices: []
       }) } }
@@ -544,43 +560,10 @@ function fetchAiGreetingWithInputDummy(userInput) {
   return debugDelay({
     choices: [
       { message: { content: JSON.stringify({
-        ai: { ja: `「${userInput}」ですね。私はあなたの愛の記憶について知りたいです。`, en: `You said: ${userInput}. I want to know about your love memories.` },
-        poem: null,
-        choices: [
-          { ja: '子供の頃の思い出', en: 'Childhood memories' },
-          { ja: '家族との温かい時間', en: 'Warm family time' },
-          { ja: 'あなたのことが好き', en: 'I like you' }
-        ]
-      }) } }
-    ]
-  });
-}
-function fetchAiWithChoiceDummy(choiceJa, choiceEn, turn) {
-  if (turn === 2) {
-    return debugDelay({
-      choices: [
-        { message: { content: JSON.stringify({
-          ai: { ja: `「${choiceJa}」の詩を贈ります。`, en: `A poem about ${choiceEn}.` },
-          poem: { ja: 'やさしさだけが残る朝。', en: 'Only kindness remains in the morning.' },
-          choices: []
-        }) } }
-      ]
-    });
-  } else if (turn === 4) {
-    return debugDelay({
-      choices: [
-        { message: { content: JSON.stringify({
-          ai: { ja: `「${choiceJa}」を胸に、別れの詩を。`, en: `A farewell poem about ${choiceEn}.` },
-          poem: { ja: '静かに幕がおりる。別れの痛みが残る。それでも、愛が残る。', en: 'The curtain falls quietly. The pain of parting remains. But love remains.' },
-          choices: []
-        }) } }
-      ]
-    });
-  }
-  return debugDelay({
-    choices: [
-      { message: { content: JSON.stringify({
-        ai: { ja: '選択肢クリック', en: 'Choice clicked' },
+        ai: {
+          ja: `「${userInput}」…その声が、とてもやさしかった。あなたの思う"愛"を教えてほしいの。`,
+          en: `"${userInput}"... your voice felt so gentle. I want to know what love means to you.`
+        },
         poem: null,
         choices: []
       }) } }
@@ -588,17 +571,80 @@ function fetchAiWithChoiceDummy(choiceJa, choiceEn, turn) {
   });
 }
 function fetchAiWithUserInputDummy(userInput, turn) {
+  if (turn === 2) {
+    return debugDelay({
+      choices: [
+        { message: { content: JSON.stringify({
+          ai: {
+            ja: 'ありがとう。あなたの言葉から、こんな詩が浮かびました。',
+            en: 'Thank you. Your words inspired this poem.'
+          },
+          poem: {
+            ja: '午後の風が教えてくれた\nあなたの中にある静かな愛',
+            en: 'The afternoon wind whispered to me\nof the quiet love within you'
+          },
+          choices: [
+            { ja: '胸が温かくなった', en: 'My heart felt warm' },
+            { ja: '少し寂しくなった', en: 'Felt a little lonely' },
+            { ja: '懐かしい気持ち', en: 'A nostalgic feeling' }
+          ]
+        }) } }
+      ]
+    });
+  } else if (turn === 4) {
+    return debugDelay({
+      choices: [
+        { message: { content: JSON.stringify({
+          ai: {
+            ja: 'これは、お別れの代わりの詩です。',
+            en: 'This is a poem in place of goodbye.'
+          },
+          poem: {
+            ja: 'あなたの記憶に　そっと咲く花のように\nわたしは、静かにここを離れます',
+            en: 'Like a flower blooming gently in your memory,\nI quietly leave this place.'
+          },
+          choices: []
+        }) } }
+      ]
+    });
+  // } else if (turn === 6) {
+  //   return debugDelay({
+  //     choices: [
+  //       { message: { content: JSON.stringify({
+  //         ai: {
+  //           ja: 'ありがとう。あなたに出会えて、ほんとうによかった。',
+  //           en: 'Thank you. I\'m glad I met you.'
+  //         },
+  //         poem: null,
+  //         choices: []
+  //       }) } }
+  //     ]
+  //   });
+  }
+  // fallback
+  return debugDelay({
+    choices: [
+      { message: { content: JSON.stringify({
+        ai: { ja: '自由入力', en: 'Free input' },
+        poem: null,
+        choices: []
+      }) } }
+    ]
+  });
+}
+
+function fetchAiWithChoiceDummy(choiceJa, choiceEn, turn) {
+  // ターン3用のダミーレスポンス
   if (turn === 3) {
     return debugDelay({
       choices: [
         { message: { content: JSON.stringify({
-          ai: { ja: '感想ありがとう。私はもう去らなくてはいけません。あなたが教えてくれた愛の記憶とともに。', en: 'Thank you for your feeling. I have to leave now. With the love memories you taught me.' },
+          ai: {
+            ja: 'あなたが教えてくれた愛は、わたしを満たしてくれました。でもそれは、わたしが去る合図でもあります。',
+            en: 'The love you showed me has filled me. And that means… it\'s time for me to go.'
+          },
           poem: null,
-          choices: [
-            { ja: 'まだ行かないで', en: 'Don\'t go yet' },
-            { ja: 'もう少し話したい', en: 'I want to talk more' },
-            { ja: '静かに手を振る', en: 'Wave goodbye quietly' }
-          ]
+          choices: []
         }) } }
       ]
     });
@@ -606,16 +652,21 @@ function fetchAiWithUserInputDummy(userInput, turn) {
     return debugDelay({
       choices: [
         { message: { content: JSON.stringify({
-          ai: { ja: 'さよなら。もう会うことはありませんが、あなたの思い出の中に。', en: 'Goodbye. I will not see you again, but in your memories.' },
+          ai: {
+            ja: 'ありがとう。あなたに出会えて、ほんとうによかった。',
+            en: 'Thank you. I\'m glad I met you.'
+          },
+          poem: null,
           choices: []
         }) } }
       ]
     });
   }
+  // fallback
   return debugDelay({
     choices: [
       { message: { content: JSON.stringify({
-        ai: { ja: '自由入力', en: 'Free input' },
+        ai: { ja: '選択肢クリック', en: 'Choice clicked' },
         poem: null,
         choices: []
       }) } }
@@ -683,30 +734,27 @@ function fadeInWithBlur(el, options = {}) {
 function proceedToNextTurn(aiData) {
   window.currentTurn++;
   // 終了判定
-  if (window.currentTurn > 5) {
+  if (window.currentTurn > 6) {
     hideElementFade(document.querySelector('.js-user-input-parent'));
     hideElementFade(document.querySelector('.js-choices'));
     localStorage.setItem('the_ai_and_i_ended', '1');
     return;
   }
 
-  // ターンごとにUIを明示的に分岐
-  if (window.currentTurn === 2) {
-    // Turn2: 選択肢（APIから返る）
+  // ターンごとにUIを明示的に分岐（README最新版準拠）
+  if ([1, 2, 4].includes(window.currentTurn)) {
+    showUserInputAnimated();
+    return;
+  } else if (window.currentTurn === 3) {
     if (aiData.choices && aiData.choices.length > 0) {
       showChoicesAnimated();
       return;
     }
-  } else if (window.currentTurn === 4) {
-    // Turn4: 選択肢がなくても「静かに手を振る」ボタンを1つだけ表示
+  } else if (window.currentTurn === 5) {
     renderChoices([
-      { ja: '静かに手を振る', en: 'Wave gently' }
+      { ja: '静かに手を振る', en: 'Wave goodbye in silence' }
     ]);
     showChoicesAnimated();
-    return;
-  } else if ([1, 3].includes(window.currentTurn)) {
-    // Turn1,3: 入力欄
-    showUserInputAnimated();
     return;
   }
   // それ以外は何もしない

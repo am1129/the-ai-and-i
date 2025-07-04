@@ -49,16 +49,16 @@ if ($isNg) {
       $prompt = buildPromptForGreeting($userInput);
       break;
     case 2:
-      $prompt = buildPromptForTopicSelection($choiceJa, $choiceEn);
+      $prompt = buildPromptForTopicSelection($userInput);
       break;
     case 3:
-      $prompt = buildPromptForFirstPoem($userInput);
+      $prompt = buildPromptForFirstPoem($choiceJa, $choiceEn);
       break;
     case 4:
-      $prompt = buildPromptForFarewellSelection($choiceJa, $choiceEn);
+      $prompt = buildPromptForFarewellSelection($userInput);
       break;
     case 5:
-      $prompt = buildPromptForFinalPoem($userInput);
+      $prompt = buildPromptForFinalPoem();
       break;
     default:
       $prompt = buildPromptForInitial();
@@ -92,7 +92,19 @@ curl_setopt_array($ch, [
 $response = curl_exec($ch);
 curl_close($ch);
 
-echo $response;
+// OpenAI APIのレスポンスをデコード
+$data = json_decode($response, true);
+if (isset($data['choices'][0]['message']['content'])) {
+  $content = $data['choices'][0]['message']['content'];
+  // contentがJSON文字列の場合はデコード
+  $contentObj = json_decode($content, true);
+  if ($contentObj !== null) {
+      $data['choices'][0]['message']['content'] = $contentObj;
+  }
+}
+
+header('Content-Type: application/json; charset=utf-8');
+echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
 
 // ===== Moderation API 呼び出し関数 =====
