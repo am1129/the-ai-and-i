@@ -1,7 +1,7 @@
 // =========================
 // デバッグモード切り替え
 // =========================
-const isDebug = true; // ←ここをfalseにすれば本番API、trueでダミーJSON
+const isDebug = false; // ←ここをfalseにすれば本番API、trueでダミーJSON
 
 // =========================
 // 初期化・関数呼び出し
@@ -15,45 +15,52 @@ document.addEventListener('DOMContentLoaded', () => {
   // 初期表示制御
   hideElementFade(document.querySelector('.js-ai-utterance'));
   hideElementFade(document.querySelector('.js-choices'));
-  hideElementFade(document.querySelector('.js-user-input'));
-  showElementFade(document.querySelector('.js-talk-btn-wrap'));
-  // ブラー＋フェードイン演出
-  const talkBtnWrap = document.querySelector('.js-talk-btn-wrap');
-  gsap.fromTo(talkBtnWrap, {
-    opacity: 0,
-    filter: 'blur(8px)'
-  }, {
-    opacity: 1,
-    filter: 'blur(0px)',
-    duration: 1.2,
-    ease: 'power2.out'
+  hideElementFade(document.querySelector('.js-user-input-parent'));
+  showElementFade(document.querySelector('.js-first-screen'));
+  hideElementFade(document.querySelector('.js-talk-btn-parent'));
+
+  // Google Fontsの読み込み完了 or 1秒経過後にh1アニメーション
+  const talkTitle = document.querySelector('.js-main-title');
+  const talkSubTitle = document.querySelector('.js-main-subtitle');
+  const talkBtn = document.querySelector('.js-talk-btn');
+  Promise.race([
+    document.fonts.ready,
+    new Promise(resolve => setTimeout(resolve, 1000))
+  ]).then(() => {
+    // h1のis-hiddenを外す
+    talkTitle.classList.remove('is-hidden');
+    animateTextByChar(talkTitle, {
+      duration: 2,
+      stagger: 0.15,
+      onComplete: () => {
+        // h2のis-hiddenを外してfadeInWithBlur
+        talkSubTitle.classList.remove('is-hidden');
+        fadeInWithBlur(talkSubTitle, { duration: 0.8 }).then(() => {
+          showElementFade(document.querySelector('.js-talk-btn-parent'));
+        });
+      }
+    });
   });
 
   // Talkボタン押下時の処理
   document.querySelector('.js-talk-btn').addEventListener('click', async () => {
-    // Talkボタンを消す
-    hideElementFade(document.querySelector('.js-talk-btn-wrap'));
-    showLoading();
-    const apiResponse = await (isDebug ? fetchAiGreetingDummy() : fetchAiGreeting());
-    hideLoading();
-    console.log(apiResponse);
-    let aiData = { ai: { ja: '', en: '' }, poem: null, choices: [] };
-    try {
-      aiData = JSON.parse(apiResponse.choices?.[0]?.message?.content || '{}');
-    } catch (e) {
-      console.error('AIレスポンスのJSONパース失敗', e);
-    }
+    // Talkボタンとタイトルを消す
+    await hideElementFade(document.querySelector('.js-first-screen'));
+    // ローディングをふわっと表示
+    await fadeInWithBlur(document.querySelector('.js-loading'));
+    const aiData = await getAiResponse(isDebug ? fetchAiGreetingDummy() : fetchAiGreeting());
+    await hideLoading();
     setAiResponseDisplay(aiData);
     startTypewriterEffect(() => {
-      showUserInputAnimated();
+      proceedToNextTurn(aiData);
     });
   });
 
   // 送信ボタンの処理をターンごとに分岐
-  window.currentTurn = 1;
+  window.currentTurn = 0;
   // セッション終了フラグ
   const SESSION_KEY = 'the_ai_and_i_ended';
-  if (sessionStorage.getItem(SESSION_KEY)) {
+  if (localStorage.getItem(SESSION_KEY)) {
     showFinalGoodbye();
     return;
   }
@@ -61,47 +68,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputField = document.querySelector('.js-choice-input');
     const userInput = inputField.value.trim();
     if (!userInput) return;
-    hideElementFade(document.querySelector('.js-user-input'));
+    hideElementFade(document.querySelector('.js-user-input-parent'));
     showLoading();
-    let apiResponse, aiData;
+    let aiData;
     if (window.currentTurn === 1) {
-      // 挨拶入力→テーマ選択肢
-      apiResponse = await (isDebug ? fetchAiGreetingWithInputDummy(userInput) : fetchAiGreetingWithInput(userInput));
-    } else if (window.currentTurn === 3) {
-      // 詩への感想入力→別れのテーマ選択肢
-      apiResponse = await (isDebug ? fetchAiWithUserInputDummy(userInput, 3) : fetchAiWithUserInput(userInput, 3));
-    } else if (window.currentTurn === 5) {
-      // 別れのひと言入力→AI最終詩
-      apiResponse = await (isDebug ? fetchAiWithUserInputDummy(userInput, 5) : fetchAiWithUserInput(userInput, 5));
+      aiData = await getAiResponse(isDebug ? fetchAiGreetingWithInputDummy(userInput) : fetchAiGreetingWithInput(userInput, window.currentTurn));
+    } else if (window.currentTurn === 3 || window.currentTurn === 5) {
+      aiData = await getAiResponse(isDebug ? fetchAiWithUserInputDummy(userInput, window.currentTurn) : fetchAiWithUserInput(userInput, window.currentTurn));
     } else {
-      // その他ターンはデフォルトでturn:currentTurn
-      apiResponse = await (isDebug ? fetchAiWithUserInputDummy(userInput, window.currentTurn) : fetchAiWithUserInput(userInput, window.currentTurn));
+      // それ以外は何もしない
+      await hideLoading();
+      return;
     }
-    console.log(apiResponse);
-    try {
-      aiData = JSON.parse(apiResponse.choices?.[0]?.message?.content || '{}');
-    } catch (e) {
-      aiData = { ai: { ja: '', en: '' }, poem: null, choices: [] };
-      console.error('AIレスポンスのJSONパース失敗', e);
-    }
-    hideLoading();
+    await hideLoading();
     setAiResponseDisplay(aiData);
     startTypewriterEffect(() => {
-      if (aiData.choices && aiData.choices.length > 0) {
-        showChoicesAnimated();
-        window.currentTurn++;
-      } else if (window.currentTurn === 5) {
-        showUserInputAnimated();
-        window.currentTurn++;
-      } else if (window.currentTurn === 6) {
-        hideElementFade(document.querySelector('.js-user-input'));
-        showFinalGoodbye();
-        sessionStorage.setItem(SESSION_KEY, '1');
-        window.currentTurn++;
-      } else {
-        showUserInputAnimated();
-        window.currentTurn++;
-      }
+      proceedToNextTurn(aiData);
     });
     // 入力欄クリア
     inputField.value = '';
@@ -114,56 +96,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const choiceJa = btn.querySelector('.js-choice-ja')?.textContent || '';
     const choiceEn = btn.querySelector('.js-choice-en')?.textContent || '';
     hideElementFade(document.querySelector('.js-choices'));
-    // Turn2: テーマ選択→詩生成、Turn4: 別れテーマ選択→最終詩
-    let turnForChoice = window.currentTurn;
-    if (window.currentTurn === 2) {
-      turnForChoice = 2;
-    } else if (window.currentTurn === 4) {
-      turnForChoice = 4;
-    }
     showLoading();
-    const apiResponse = await (isDebug ? fetchAiWithChoiceDummy(choiceJa, choiceEn, turnForChoice) : fetchAiWithChoice(choiceJa, choiceEn, turnForChoice));
-    console.log(apiResponse);
-    let aiData;
-    try {
-      aiData = JSON.parse(apiResponse.choices?.[0]?.message?.content || '{}');
-    } catch (e) {
-      aiData = { ai: { ja: '', en: '' }, poem: null, choices: [] };
-      console.error('AIレスポンスのJSONパース失敗', e);
-    }
-    hideLoading();
+    const aiData = await getAiResponse(isDebug ? fetchAiWithChoiceDummy(choiceJa, choiceEn, window.currentTurn) : fetchAiWithChoice(choiceJa, choiceEn, window.currentTurn));
+    await hideLoading();
     setAiResponseDisplay(aiData);
     startTypewriterEffect(() => {
-      if (aiData.choices && aiData.choices.length > 0) {
-        showChoicesAnimated();
-        window.currentTurn++;
-      } else if (window.currentTurn === 2) {
-        showUserInputAnimated();
-        window.currentTurn++;
-      } else if (window.currentTurn === 4) {
-        showUserInputAnimated();
-        window.currentTurn++;
-      } else if (window.currentTurn === 5) {
-        // Turn5でお別れの言葉入力→最終詩表示→AIが去る
-        showFinalGoodbye();
-        sessionStorage.setItem(SESSION_KEY, '1');
-        window.currentTurn++;
-      } else {
-        showUserInputAnimated();
-        window.currentTurn++;
-      }
+      proceedToNextTurn(aiData);
     });
   });
 
   // AIが去った後の静的画面表示
   function showFinalGoodbye() {
-    hideElementFade(document.querySelector('.js-ai-utterance'));
-    hideElementFade(document.querySelector('.js-choices'));
-    hideElementFade(document.querySelector('.js-user-input'));
+    // h1とTalkボタンを非表示
+    hideElementFade(document.querySelector('.js-first-screen'));
+    hideElementFade(document.querySelector('.js-talk-btn-parent'));
+    // AI発話エリアを表示
+    const aiUtterance = document.querySelector('.js-ai-utterance');
+    aiUtterance.classList.remove('is-hidden');
+    aiUtterance.classList.add('is-gone');
+    showElementFade(aiUtterance);
+    // テキストをセットし、1文字ずつアニメーション
     const aiJa = document.querySelector('.js-ai-ja');
     const aiEn = document.querySelector('.js-ai-en');
-    aiJa.textContent = '彼（彼女）はもういません';
+    aiJa.textContent = '彼/彼女はもういません。';
     aiEn.textContent = 'He/She is no longer here.';
+    animateTextByChar(aiJa, { duration: 1.2, stagger: 0.12 });
+    animateTextByChar(aiEn, { duration: 0.8, stagger: 0.06 });
+    // 詩エリアは非表示
     const poemJa = document.querySelector('.js-ai-poem-ja');
     const poemEn = document.querySelector('.js-ai-poem-en');
     if (poemJa) {
@@ -247,36 +206,65 @@ function startTypewriterEffect(onAllFinished) {
   if (poemJa) poemJa.textContent = '';
   if (poemEn) poemEn.textContent = '';
 
-  // 詩がある場合は4つ、なければ2つ
-  let total = 2;
-  if (poemJaText || poemEnText) total = 4;
-  let finishedCount = 0;
-  function onTypewriterFinished() {
-    finishedCount++;
-    if (finishedCount === total) {
-      if (typeof onAllFinished === 'function') onAllFinished();
+  // AIセリフのタイプライターが終わったら詩をfadeInWithBlurで表示
+  let aiFinished = 0;
+  function onAiFinished() {
+    aiFinished++;
+    if (aiFinished === 2) {
+      // 詩がある場合のみアニメーション
+      if (poemJaText || poemEnText) {
+        const poemParent = poemJa?.parentElement;
+        if (poemParent) poemParent.classList.remove('is-hidden');
+        let poemFinished = 0;
+        function onPoemFinished() {
+          poemFinished++;
+          if (poemFinished === ((poemJaText && poemEnText) ? 2 : 1)) {
+            if (typeof onAllFinished === 'function') onAllFinished();
+          }
+        }
+        if (poemJa && poemJaText) {
+          poemJa.textContent = poemJaText;
+          animateTextByChar(poemJa, { duration: 1.2, stagger: 0.12, onComplete: () => {
+            if (poemEn && poemEnText) {
+              poemEn.textContent = poemEnText;
+              animateTextByChar(poemEn, { duration: 0.8, stagger: 0.06, onComplete: onPoemFinished });
+            }
+            onPoemFinished();
+          }});
+        } else if (poemEn && poemEnText) {
+          poemEn.textContent = poemEnText;
+          animateTextByChar(poemEn, { duration: 0.8, stagger: 0.06, onComplete: onPoemFinished });
+        }
+      } else {
+        if (typeof onAllFinished === 'function') onAllFinished();
+      }
     }
   }
-  typewriterText(aiJa, aiJaText, 100, onTypewriterFinished);
-  typewriterText(aiEn, aiEnText, 80, onTypewriterFinished);
-  if (poemJaText) typewriterText(poemJa, poemJaText, 100, onTypewriterFinished);
-  if (poemEnText) typewriterText(poemEn, poemEnText, 80, onTypewriterFinished);
+  typewriterText(aiJa, aiJaText, 100, onAiFinished);
+  typewriterText(aiEn, aiEnText, 80, onAiFinished);
 }
 
 function typewriterText(element, text, duration, onComplete) {
   if (!element) return;
-  let i = 0;
-  function showNext() {
-    if (i <= text.length) {
-      element.textContent = text.slice(0, i) + '_';
-      i++;
-      setTimeout(showNext, duration);
-    } else {
+  // GSAP TextPluginを使ったタイプライター風アニメーション
+  gsap.killTweensOf(element);
+  element.textContent = '';
+  let cursor = '|';
+  let total = text.length;
+  let tl = gsap.timeline({
+    onComplete: () => {
       element.textContent = text;
       if (onComplete) onComplete();
     }
+  });
+  for (let i = 0; i <= total; i++) {
+    tl.to(element, {
+      text: { value: text.slice(0, i) + (i < total ? cursor : '') },
+      duration: duration / 1000,
+      ease: 'none',
+      overwrite: 'auto'
+    });
   }
-  showNext();
 }
 
 function showChoices() {
@@ -295,43 +283,34 @@ function showChoices() {
 
 // 入力欄をアニメーション付きで表示
 function showUserInputAnimated() {
+  const userInputParent = document.querySelector('.js-user-input-parent');
   const userInput = document.querySelector('.js-user-input');
   const guideJa = document.querySelector('.js-user-input-guide-ja');
   const guideEn = document.querySelector('.js-user-input-guide-en');
   if (typeof window.currentTurn !== 'undefined' && window.currentTurn > 6) {
-    hideElementFade(userInput);
+    hideElementFade(userInputParent);
     guideJa.textContent = '';
     guideEn.textContent = '';
     return;
   }
-  // デフォルトはTurn1のガイド
-  let jaText = 'AIに挨拶をする';
-  let enText = 'Say hello to AI.';
+  // ターンごとにガイド文を分岐
+  let jaText = '';
+  let enText = '';
   if (typeof window.currentTurn !== 'undefined') {
-    if (window.currentTurn === 2) {
+    if (window.currentTurn === 1) {
+      jaText = 'AIに挨拶をする';
+      enText = 'Say hello to AI.';
+    } else if (window.currentTurn === 3) {
       jaText = '詩の感想を述べる';
       enText = 'Express your feeling about the poem.';
-    } else if (window.currentTurn === 4) {
+    } else if (window.currentTurn === 5) {
       jaText = 'さよならの挨拶をする';
       enText = 'Say goodbye.';
     }
   }
   guideJa.textContent = jaText;
   guideEn.textContent = enText;
-  // is-hidden→is-shownの切り替えを確実に
-  userInput.classList.remove('is-hidden');
-  userInput.classList.add('is-shown');
-  gsap.fromTo(userInput, {
-    opacity: 0,
-    y: 20,
-    filter: 'blur(8px)'
-  }, {
-    opacity: 1,
-    y: 0,
-    filter: 'blur(0px)',
-    duration: 1,
-    ease: 'power2.out'
-  });
+  fadeInWithBlur(userInputParent);
 }
 
 // =========================
@@ -344,6 +323,17 @@ const history = [
   { role: 'assistant', content: '最初の返答' },
   { role: 'user', content: '次の選択肢をクリックしたときのプロンプト' },
 ];
+
+// AIレスポンス取得＋エラーハンドリング共通関数
+async function getAiResponse(promise) {
+  try {
+    const apiResponse = await promise;
+    return JSON.parse(apiResponse.choices?.[0]?.message?.content || '{}');
+  } catch (e) {
+    console.error('AIレスポンスのJSONパース失敗', e);
+    return { ai: { ja: '', en: '' }, poem: null, choices: [] };
+  }
+}
 
 // AIの最初の挨拶をAPIから取得
 async function fetchAiGreeting() {
@@ -358,21 +348,12 @@ async function fetchAiGreeting() {
   return data;
 }
 
-// デバッグ用静的返答
-async function fetchAiGreetingDebug() {
-  return {
-    ai: { ja: 'こんにちは', en: 'Hello' },
-    poem: null,
-    choices: null
-  };
-}
-
 // ユーザー入力送信用API
-async function fetchAiGreetingWithInput(userInput) {
+async function fetchAiGreetingWithInput(userInput, turn) {
   const res = await fetch('api/chat.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ turn: 1, user_input: userInput, messages: [] })
+    body: JSON.stringify({ turn, user_input: userInput, messages: [] })
   });
   return await res.json();
 }
@@ -396,16 +377,16 @@ function renderChoices(choices) {
 // 選択肢をアニメーション付きで表示
 function showChoicesAnimated() {
   const choicesWrap = document.querySelector('.js-choices');
-  choicesWrap.classList.remove('is-hidden');
+  fadeInWithBlur(choicesWrap);
   const choices = choicesWrap.querySelectorAll('.js-choice');
   choices.forEach((choice, idx) => {
     gsap.fromTo(choice, {
       opacity: 0,
-      y: 20,
-      filter: 'blur(8px)'
+      // y: 10,
+      filter: 'blur(20px)'
     }, {
       opacity: 1,
-      y: 0,
+      // y: 0,
       filter: 'blur(0px)',
       duration: 1,
       delay: 0.2 * idx,
@@ -439,22 +420,61 @@ async function fetchAiWithUserInput(userInput, turn) {
 // 共通UI操作関数
 // =========================
 function showElementFade(el) {
+  if (!el) return Promise.resolve();
   el.classList.remove('is-hidden');
-  el.classList.add('is-shown');
+  gsap.killTweensOf(el);
+  gsap.set(el, { pointerEvents: 'auto' });
+  return new Promise(resolve => {
+    gsap.to(el, {
+      opacity: 1,
+      duration: 0.8,
+      ease: 'power2.out',
+      onStart: () => {
+        el.style.display = '';
+      },
+      onComplete: resolve
+    });
+  });
 }
 function hideElementFade(el) {
-  el.classList.remove('is-shown');
-  el.classList.add('is-hidden');
+  if (!el) return Promise.resolve();
+  gsap.killTweensOf(el);
+  return new Promise(resolve => {
+    gsap.to(el, {
+      opacity: 0,
+      duration: 0.8,
+      ease: 'power2.out',
+      onComplete: () => {
+        el.style.pointerEvents = 'none';
+        el.classList.add('is-hidden');
+        resolve();
+      }
+    });
+  });
 }
 function showLoading() {
   hideElementFade(document.querySelector('.js-ai-utterance'));
   hideElementFade(document.querySelector('.js-choices'));
-  hideElementFade(document.querySelector('.js-user-input'));
-  hideElementFade(document.querySelector('.js-talk-btn-wrap'));
+  hideElementFade(document.querySelector('.js-user-input-parent'));
+  hideElementFade(document.querySelector('.js-first-screen'));
   showElementFade(document.querySelector('.js-loading'));
 }
 function hideLoading() {
-  hideElementFade(document.querySelector('.js-loading'));
+  return new Promise(resolve => {
+    const loading = document.querySelector('.js-loading');
+    if (!loading) return resolve();
+    gsap.killTweensOf(loading);
+    gsap.to(loading, {
+      opacity: 0,
+      duration: 0.8,
+      ease: 'power2.out',
+      onComplete: () => {
+        loading.style.pointerEvents = 'none';
+        loading.classList.add('is-hidden');
+        resolve();
+      }
+    });
+  });
 }
 
 // =========================
@@ -467,24 +487,35 @@ function setAiResponseDisplay(aiData) {
   const poemEn = document.querySelector('.js-ai-poem-en');
   aiJa.textContent = aiData.ai?.ja || '';
   aiEn.textContent = aiData.ai?.en || '';
-  if (aiData.poem && aiData.poem.ja) {
+
+  // poemの内容が"..."や空文字の場合は非表示
+  const isPoemJaValid = aiData.poem && aiData.poem.ja && aiData.poem.ja.replace(/\s/g, '') !== '' && aiData.poem.ja !== '...';
+  const isPoemEnValid = aiData.poem && aiData.poem.en && aiData.poem.en.replace(/\s/g, '') !== '' && aiData.poem.en !== '...';
+  if (isPoemJaValid) {
     poemJa.textContent = aiData.poem.ja;
     poemJa.parentElement.classList.remove('is-hidden');
   } else {
     poemJa.textContent = '';
     poemJa.parentElement.classList.add('is-hidden');
   }
-  if (aiData.poem && aiData.poem.en) {
+  if (isPoemEnValid) {
     poemEn.textContent = aiData.poem.en;
     poemEn.parentElement.classList.remove('is-hidden');
   } else {
     poemEn.textContent = '';
     poemEn.parentElement.classList.add('is-hidden');
   }
+
+  // choicesも「...」や空文字のみのものは除外
+  const validChoices = (aiData.choices || []).filter(choice => {
+    const ja = (choice.ja || '').replace(/\s/g, '');
+    const en = (choice.en || '').replace(/\s/g, '');
+    return (ja && ja !== '...') || (en && en !== '...');
+  });
   showElementFade(document.querySelector('.js-ai-utterance'));
   // 選択肢欄を一旦非表示
   hideElementFade(document.querySelector('.js-choices'));
-  renderChoices(aiData.choices || []);
+  renderChoices(validChoices);
 }
 
 // =========================
@@ -530,7 +561,7 @@ function fetchAiWithChoiceDummy(choiceJa, choiceEn, turn) {
       choices: [
         { message: { content: JSON.stringify({
           ai: { ja: `「${choiceJa}」の詩を贈ります。`, en: `A poem about ${choiceEn}.` },
-          poem: { ja: '静かに幕がおりる。別れの痛みが残る。それでも、愛が残る。', en: 'The curtain falls quietly. The pain of parting remains. But love remains.' },
+          poem: { ja: 'やさしさだけが残る朝。', en: 'Only kindness remains in the morning.' },
           choices: []
         }) } }
       ]
@@ -540,7 +571,7 @@ function fetchAiWithChoiceDummy(choiceJa, choiceEn, turn) {
       choices: [
         { message: { content: JSON.stringify({
           ai: { ja: `「${choiceJa}」を胸に、別れの詩を。`, en: `A farewell poem about ${choiceEn}.` },
-          poem: { ja: 'やさしさだけが残る朝。', en: 'Only kindness remains in the morning.' },
+          poem: { ja: '静かに幕がおりる。別れの痛みが残る。それでも、愛が残る。', en: 'The curtain falls quietly. The pain of parting remains. But love remains.' },
           choices: []
         }) } }
       ]
@@ -590,4 +621,93 @@ function fetchAiWithUserInputDummy(userInput, turn) {
       }) } }
     ]
   });
+}
+
+// =========================
+// SplitTextを使った1文字ずつアニメーション関数
+// =========================
+/**
+ * 1文字ずつブラー＋フェードイン＋下から上に上がるアニメーション
+ * @param {Element} el 対象要素
+ * @param {Object} [options] オプション: {delay, stagger, duration, onComplete, text}
+ */
+function animateTextByChar(el, options = {}) {
+  if (!el) return;
+  const text = options.text !== undefined ? options.text : el.textContent;
+  el.textContent = text; // 念のためリセット
+  // SplitTextでspan分割
+  const split = new SplitText(el, { type: 'chars' });
+  gsap.set(split.chars, {
+    opacity: 0,
+    // y: 20,
+    filter: 'blur(20px)'
+  });
+  gsap.to(split.chars, {
+    opacity: 1,
+    // y: 0,
+    filter: 'blur(0px)',
+    duration: options.duration || 0.7,
+    ease: 'power2.out',
+    stagger: options.stagger || 0.06,
+    delay: options.delay || 0,
+    onComplete: () => {
+      if (typeof options.onComplete === 'function') options.onComplete();
+    }
+  });
+  return split;
+}
+
+// =========================
+// 共通フェードイン＋ブラーアニメーション関数
+// =========================
+function fadeInWithBlur(el, options = {}) {
+  if (!el) return Promise.resolve();
+  el.classList.remove('is-hidden');
+  gsap.killTweensOf(el);
+  gsap.set(el, { opacity: 0, filter: 'blur(20px)', pointerEvents: 'auto' });
+  return new Promise(resolve => {
+    gsap.to(el, {
+      opacity: 1,
+      filter: 'blur(0px)',
+      duration: options.duration || 0.8,
+      ease: options.ease || 'power2.out',
+      delay: options.delay || 0,
+      onComplete: resolve
+    });
+  });
+}
+
+// =========================
+// ターン進行＋UI表示の共通関数
+// =========================
+function proceedToNextTurn(aiData) {
+  window.currentTurn++;
+  // 終了判定
+  if (window.currentTurn > 5) {
+    hideElementFade(document.querySelector('.js-user-input-parent'));
+    hideElementFade(document.querySelector('.js-choices'));
+    localStorage.setItem('the_ai_and_i_ended', '1');
+    return;
+  }
+
+  // ターンごとにUIを明示的に分岐
+  if (window.currentTurn === 2) {
+    // Turn2: 選択肢（APIから返る）
+    if (aiData.choices && aiData.choices.length > 0) {
+      showChoicesAnimated();
+      return;
+    }
+  } else if (window.currentTurn === 4) {
+    // Turn4: 選択肢がなくても「静かに手を振る」ボタンを1つだけ表示
+    renderChoices([
+      { ja: '静かに手を振る', en: 'Wave gently' }
+    ]);
+    showChoicesAnimated();
+    return;
+  } else if ([1, 3].includes(window.currentTurn)) {
+    // Turn1,3: 入力欄
+    showUserInputAnimated();
+    return;
+  }
+  // それ以外は何もしない
 }

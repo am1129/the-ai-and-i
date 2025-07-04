@@ -2,12 +2,13 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>The AI and I</title>
+  <title>The AI and I.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
   <link rel="icon" href="assets/images/favicon.ico">
   <link rel="canonical" href="https://am1129.work/the-ai-and-i/">
   <meta name="description" content="The AI and I. He/she is here, for now.">
+
   <meta property="og:title" content="The AI and I">
   <meta property="og:description" content="The AI and I. He/she is here, for now.">
   <meta property="og:image" content="https://am1129.work/the-ai-and-i/assets/images/ogp.png">
@@ -31,7 +32,8 @@
       <div class="c-loading__text-ja">AIが詩を紡いでいます</div>
       <div class="c-loading__text-en">AI is weaving a poem.</div>
     </div>
-  </div>
+  </div><!-- /.c-loading -->
+
   <div class="l-bg">
     <div class="l-bg-gradient js-bg-gradient">
       <div class="o-bg-ball o-bg-ball1 js-bg-ball"></div>
@@ -41,15 +43,23 @@
       <div class="o-bg-ball o-bg-ball5 js-bg-ball"></div>
     </div>
     <div class="l-bg-noise js-bg-noise"></div>
-  </div>
+  </div><!-- /.l-bg -->
+
   <div class="l-content js-content">
+
     <!-- Talkボタン（初期表示のみ） -->
-    <div class="c-talk-btn-wrap js-talk-btn-wrap">
-      <div class="c-talk-btn js-talk-btn">
-        <div class="c-talk-btn__ja"><span class="c-talk-btn__arrow">▶</span>話しかける</div>
-        <div class="c-talk-btn__en">Talk.</div>
+    <div class="c-first-screen js-first-screen">
+      <h1 class="c-first-screen__title js-main-title is-hidden">The AI and I.</h1>
+      <h2 class="c-first-screen__subtitle js-main-subtitle is-hidden">対話は一度きりです。This conversation will happen only once.
+      </h2>
+      <div class="c-first-screen__btn js-talk-btn-parent is-hidden">
+        <div class="c-talk-btn js-talk-btn">
+          <div class="c-talk-btn__ja"><span class="c-talk-btn__arrow">▶</span>話しかける</div>
+          <div class="c-talk-btn__en">Talk.</div>
+        </div>
       </div>
-    </div>
+    </div><!-- /.c-talk-btn-wrap -->
+
     <!-- AI発話エリア（初期は非表示） -->
     <div class="c-ai-utterance js-ai-utterance is-hidden">
       <div class="c-ai-utterance__content">
@@ -60,26 +70,39 @@
         <div class="c-ai-poem__ja js-ai-poem-ja"></div>
         <div class="c-ai-poem__en js-ai-poem-en"></div>
       </div>
-    </div>
+    </div><!-- /.c-ai-utterance -->
+
     <!-- 選択肢エリア（初期は非表示） -->
-    <div class="c-choices js-choices is-hidden"></div>
+    <div class="c-choices js-choices is-hidden">
+    </div><!-- /.c-choices -->
+
     <!-- ユーザー入力欄（初期は非表示） -->
-    <div class="c-user-input js-user-input is-hidden">
-      <div class="c-user-input__guide js-user-input-guide">
-        <div class="c-user-input__guide-ja">
-          <span class="c-user-input__guide-arrow">▼</span>
-          <span class="c-user-input__guide-text js-user-input-guide-ja">AIに挨拶をする</span>
+    <div class="c-user-input-parent js-user-input-parent is-hidden">
+      <div class="c-user-input js-user-input">
+        <div class="c-user-input__guide js-user-input-guide">
+          <div class="c-user-input__guide-ja">
+            <span class="c-user-input__guide-arrow">▼</span>
+            <span class="c-user-input__guide-text js-user-input-guide-ja">AIに挨拶をする</span>
+          </div>
+          <div class="c-user-input__guide-en js-user-input-guide-en">Say hello to AI.</div>
         </div>
-        <div class="c-user-input__guide-en js-user-input-guide-en">Say hello to AI.</div>
+        <div class="c-user-input__inner">
+          <input type="text" class="c-user-input__field js-choice-input" maxlength="15" placeholder="最大15文字 / max 15 chars.">
+          <button class="c-user-input__btn js-user-input-btn" type="button">SEND</button>
+        </div>
       </div>
-      <div class="c-user-input__inner">
-        <input type="text" class="c-user-input__field js-choice-input" maxlength="15" placeholder="最大15文字 / max 15 chars.">
-        <button class="c-user-input__btn js-user-input-btn" type="button">SEND</button>
-      </div>
-    </div>
-  </div>
-  <footer class="o-footer footer"><a href="https://github.com/am1129/" target="_blank">©am1129, 2025</a></footer>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    </div><!-- /.js-user-input-parent -->
+
+  </div><!-- /.l-content -->
+
+  <footer class="o-footer footer">
+    <a href="https://github.com/am1129/" target="_blank">©am1129, 2025</a>
+  </footer><!-- /.o-footer -->
+
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/TextPlugin.min.js"></script>
   <script src="assets/js/script.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

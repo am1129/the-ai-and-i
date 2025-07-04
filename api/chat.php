@@ -45,19 +45,19 @@ if ($isNg) {
   ];
 } else {
   switch ($turn) {
-    case 2:
+    case 1:
       $prompt = buildPromptForGreeting($userInput);
       break;
-    case 3:
+    case 2:
       $prompt = buildPromptForTopicSelection($choiceJa, $choiceEn);
       break;
-    case 4:
+    case 3:
       $prompt = buildPromptForFirstPoem($userInput);
       break;
-    case 5:
+    case 4:
       $prompt = buildPromptForFarewellSelection($choiceJa, $choiceEn);
       break;
-    case 6:
+    case 5:
       $prompt = buildPromptForFinalPoem($userInput);
       break;
     default:
