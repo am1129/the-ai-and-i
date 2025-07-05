@@ -19,6 +19,11 @@ $choiceJa = $input['choice']['ja'] ?? '';
 $choiceEn = $input['choice']['en'] ?? '';
 $messages = $input['messages'] ?? [];
 
+// クライアントからsystem roleが含まれていた場合は除外
+$messages = array_filter($messages, function($msg) {
+  return !($msg['role'] === 'system');
+});
+
 // 不正検知
 $isNg = false;
 $moderationResult = callModerationAPI($userInput);

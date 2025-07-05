@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
       poemEn.textContent = '';
     }
     // NG時は履歴をクリア（showFinalGoodbyeなどで）
-    historyMessages.length = 1; // systemのみ残す
+    historyMessages.length = 0; // systemはサーバー側で付与
   }
 });
 
@@ -341,11 +341,8 @@ function showUserInputAnimated() {
 // 今後のAPI呼び出しや履歴管理用の変数
 // =========================
 
-// システムプロンプト（prompts.phpと合わせてください）
-const SYSTEM_PROMPT = 'あなたは詩的でやさしいAIです。';
-const historyMessages = [
-  { role: 'system', content: SYSTEM_PROMPT }
-];
+// 履歴管理用の変数（system promptはサーバー側で付与）
+const historyMessages = [];
 
 // AIレスポンス取得＋エラーハンドリング共通関数
 async function getAiResponse(promise) {
