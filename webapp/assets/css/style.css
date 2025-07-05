@@ -140,7 +140,6 @@ body {
   opacity: 0;
   filter: blur(10px);
   color: var(--color-text);
-  -webkit-text-fill-color: var(--color-text);
 }
 .c-choice:hover, .c-choice:focus {
   box-shadow: 2px 2px 10px rgba(0,0,0,0.05);
@@ -260,7 +259,6 @@ body {
   outline: none;
   min-width: 64px;
   color: var(--color-text);
-  -webkit-text-fill-color: var(--color-text);
 }
 .c-user-input__btn:hover, .c-user-input__btn:focus {
   box-shadow: 2px 2px 10px rgba(0,0,0,0.05);
@@ -312,7 +310,6 @@ body {
   justify-content: center;
   gap: 2px;
   color: var(--color-text);
-  -webkit-text-fill-color: var(--color-text);
 }
 .c-talk-btn:hover{
   box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
@@ -443,10 +440,4 @@ body {
 }
 @media (min-width: 769px) {
   .u-only-sp { display: none; }
-}
-
-/* --- ボタン色指定（iOS対策含む） --- */
-button {
-  color: var(--color-text);
-  -webkit-text-fill-color: var(--color-text);
 }
