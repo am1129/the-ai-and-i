@@ -1,4 +1,4 @@
-name: Deploy to Server
+name: Deploy to Server (via FTP Action)
 
 on:
   push:
@@ -12,20 +12,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: FTP Deploy
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: FTP Upload
+        uses: sebastianpopp/ftp-action@releases/v2
         with:
-          server: ${{ secrets.FTP_HOST }}
+          host: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ secrets.FTP_TARGET_DIR }}
-          local-dir: ./webapp/
-          exclude: |
-            **/.git/**
-            **/.git*
-            **/.github/**
-            **/.env
-            **/README.md
-            **/deploy.yml
-            **/api/**
-
+          remoteDir: ${{ secrets.FTP_TARGET_DIR }}
+          localDir: ./webapp/
