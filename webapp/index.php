@@ -13,8 +13,8 @@
   ?>
   <title><?php echo $meta_title; ?></title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <link rel="stylesheet" href="/assets/css/style.css?v=<?php echo time(); ?>">
-  <link rel="icon" href="/assets/images/favicon.ico">
+  <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
+  <link rel="icon" href="assets/images/favicon.ico">
   <link rel="canonical" href="<?php echo $meta_url; ?>">
   <meta name="description" content="<?php echo $meta_description; ?>">
 
