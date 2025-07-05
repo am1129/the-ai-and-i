@@ -2,6 +2,7 @@
 // デバッグモード切り替え
 // =========================
 const isDebug = window.IS_DEBUG;
+const useDummyApi = window.USE_DUMMY_API;
 
 // =========================
 // 初期化・関数呼び出し
@@ -48,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     await hideElementFade(document.querySelector('.js-first-screen'));
     // ローディングをふわっと表示
     await fadeInWithBlur(document.querySelector('.js-loading'));
-    const aiData = await getAiResponse(isDebug ? fetchAiGreetingDummy() : fetchAiGreeting());
+    const aiData = await getAiResponse(useDummyApi ? fetchAiGreetingDummy() : fetchAiGreeting());
     await hideLoading();
     setAiResponseDisplay(aiData);
     startTypewriterEffect(() => {
@@ -80,15 +81,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.currentTurn === 1) {
       apiPayload = { turn: window.currentTurn, user_input: userInput, messages: historyMessages };
       if(isDebug) console.log('API送信内容', apiPayload);
-      aiData = await getAiResponse(isDebug ? fetchAiGreetingWithInputDummy(userInput) : fetchAiGreetingWithInput(userInput, window.currentTurn, historyMessages));
+      aiData = await getAiResponse(useDummyApi ? fetchAiGreetingWithInputDummy(userInput) : fetchAiGreetingWithInput(userInput, window.currentTurn, historyMessages));
     } else if (window.currentTurn === 2 || window.currentTurn === 4) {
       apiPayload = { turn: window.currentTurn, user_input: userInput, messages: historyMessages };
       if(isDebug) console.log('API送信内容', apiPayload);
-      aiData = await getAiResponse(isDebug ? fetchAiWithUserInputDummy(userInput, window.currentTurn) : fetchAiWithUserInput(userInput, window.currentTurn, historyMessages));
+      aiData = await getAiResponse(useDummyApi ? fetchAiWithUserInputDummy(userInput, window.currentTurn) : fetchAiWithUserInput(userInput, window.currentTurn, historyMessages));
     } else if (window.currentTurn === 3 || window.currentTurn === 5) {
       apiPayload = { turn: window.currentTurn, user_input: userInput, messages: historyMessages };
       if(isDebug) console.log('API送信内容', apiPayload);
-      aiData = await getAiResponse(isDebug ? fetchAiWithUserInputDummy(userInput, window.currentTurn) : fetchAiWithUserInput(userInput, window.currentTurn, historyMessages));
+      aiData = await getAiResponse(useDummyApi ? fetchAiWithUserInputDummy(userInput, window.currentTurn) : fetchAiWithUserInput(userInput, window.currentTurn, historyMessages));
     } else {
       // それ以外は何もしない
       await hideLoading();
@@ -118,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // UI: 選択肢をフェードアウト、ローディングをフェードイン
     await hideElementFade(document.querySelector('.js-choices'));
     await showLoading();
-    const aiData = await getAiResponse(isDebug ? fetchAiWithChoiceDummy(choiceJa, choiceEn, window.currentTurn) : fetchAiWithChoice(choiceJa, choiceEn, window.currentTurn));
+    const aiData = await getAiResponse(useDummyApi ? fetchAiWithChoiceDummy(choiceJa, choiceEn, window.currentTurn) : fetchAiWithChoice(choiceJa, choiceEn, window.currentTurn));
     await hideLoading();
     setAiResponseDisplay(aiData);
     startTypewriterEffect(() => {

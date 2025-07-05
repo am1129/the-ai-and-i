@@ -36,11 +36,9 @@
     loadEnv(__DIR__ . '/api/.env');
 
     $isDebug = getenv('DEBUG_MODE') === 'true';
-    if ($isDebug) {
-      echo '<script>window.IS_DEBUG=true;</script>';
-    } else {
-      echo '<script>window.IS_DEBUG=false;</script>';
-    }
+    $useDummyApi = getenv('DUMMY_API_MODE') === 'true';
+    echo '<script>window.IS_DEBUG=' . ($isDebug ? 'true' : 'false') . ';</script>';
+    echo '<script>window.USE_DUMMY_API=' . ($useDummyApi ? 'true' : 'false') . ';</script>';
   ?>
 </head>
 
