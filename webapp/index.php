@@ -5,16 +5,16 @@
   <?php
     $meta_title = 'The AI and I.';
     $meta_description = 'これは、AIとの一度きりの対話です。静かに、心を交わしてください。A one-time dialogue with an AI. Speak gently, and let your heart be heard.';
-    $meta_og_image = 'https://am1129.work/the-ai-and-i/assets/images/ogp.png';
-    $meta_url = 'https://am1129.work/the-ai-and-i/';
+    $meta_og_image = 'https://the-ai-and-i.am1129.work/assets/images/ogp.png';
+    $meta_url = 'https://the-ai-and-i.am1129.work';
     $meta_og_locale = 'ja_JP';
     $meta_og_site_name = 'The AI and I.';
     $meta_twitter_card = 'summary_large_image';
   ?>
   <title><?php echo $meta_title; ?></title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
-  <link rel="icon" href="assets/images/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/style.css?v=<?php echo time(); ?>">
+  <link rel="icon" href="/assets/images/favicon.ico">
   <link rel="canonical" href="<?php echo $meta_url; ?>">
   <meta name="description" content="<?php echo $meta_description; ?>">
 
@@ -27,9 +27,9 @@
   <meta property="og:site_name" content="<?php echo $meta_og_site_name; ?>">
   <meta name="twitter:card" content="<?php echo $meta_twitter_card; ?>">
 
-  <?php include 'assets/includes/head-webfonts.php'; ?>
+  <?php include '/assets/includes/head-webfonts.php'; ?>
 
-  <?php include 'assets/includes/head-analytics.php'; ?>
+  <?php include '/assets/includes/head-analytics.php'; ?>
 
   <?php
     require_once __DIR__ . '/api/env.php';
@@ -43,7 +43,7 @@
 </head>
 
 <body>
-  <?php include 'assets/includes/body-analytics.php'; ?>
+  <?php include '/assets/includes/body-analytics.php'; ?>
 
   <div class="c-loading js-loading is-hidden">
     <svg class="c-loading__spinner" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="80" stroke-dashoffset="60"><animateTransform attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="1s" repeatCount="indefinite"/></circle></svg>
@@ -121,13 +121,13 @@
   </div><!-- /.l-content -->
 
   <footer class="o-footer footer">
-    <a href="/" target="_blank">©am1129, <?php echo date('Y'); ?></a>
+    <a href="https://am1129.work" target="_blank">©am1129, <?php echo date('Y'); ?></a>
   </footer><!-- /.o-footer -->
 
   <!-- JS -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/TextPlugin.min.js"></script>
-  <script src="assets/js/script.js?v=<?php echo time(); ?>"></script>
+  <script src="/assets/js/script.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
