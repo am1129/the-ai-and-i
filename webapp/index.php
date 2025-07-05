@@ -2,21 +2,30 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>The AI and I.</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <?php
+    $meta_title = 'The AI and I.';
+    $meta_description = 'これは、AIとの一度きりの対話です。静かに、心を交わしてください。A one-time dialogue with an AI. Speak gently, and let your heart be heard.';
+    $meta_og_image = 'https://am1129.work/the-ai-and-i/assets/images/ogp.png';
+    $meta_url = 'https://am1129.work/the-ai-and-i/';
+    $meta_og_locale = 'ja_JP';
+    $meta_og_site_name = 'The AI and I.';
+    $meta_twitter_card = 'summary_large_image';
+  ?>
+  <title><?php echo $meta_title; ?></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
   <link rel="icon" href="assets/images/favicon.ico">
-  <link rel="canonical" href="https://am1129.work/the-ai-and-i/">
-  <meta name="description" content="The AI and I. He/she is here, for now.">
+  <link rel="canonical" href="<?php echo $meta_url; ?>">
+  <meta name="description" content="<?php echo $meta_description; ?>">
 
-  <meta property="og:title" content="The AI and I.">
-  <meta property="og:description" content="The AI and I. He/she is here, for now.">
-  <meta property="og:image" content="https://am1129.work/the-ai-and-i/assets/images/ogp.png">
-  <meta property="og:url" content="https://am1129.work/the-ai-and-i/">
+  <meta property="og:title" content="<?php echo $meta_title; ?>">
+  <meta property="og:description" content="<?php echo $meta_description; ?>">
+  <meta property="og:image" content="<?php echo $meta_og_image; ?>">
+  <meta property="og:url" content="<?php echo $meta_url; ?>">
   <meta property="og:type" content="website">
-  <meta property="og:locale" content="ja_JP">
-  <meta property="og:site_name" content="The AI and I.">
-  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:locale" content="<?php echo $meta_og_locale; ?>">
+  <meta property="og:site_name" content="<?php echo $meta_og_site_name; ?>">
+  <meta name="twitter:card" content="<?php echo $meta_twitter_card; ?>">
 
   <?php include 'assets/includes/head-webfonts.php'; ?>
 
