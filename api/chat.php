@@ -1,17 +1,10 @@
 <?php
+require_once 'env.php';
 require_once 'prompts.php';
 
 header('Content-Type: application/json');
 
 // 環境変数の読み込み（.env を使っている場合）
-function loadEnv($path) {
-  $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-  foreach ($lines as $line) {
-    if (str_starts_with(trim($line), '#')) continue;
-    list($key, $value) = explode('=', $line, 2);
-    putenv(trim($key) . '=' . trim($value));
-  }
-}
 loadEnv(__DIR__ . '/.env');
 
 // OpenAI API呼び出し

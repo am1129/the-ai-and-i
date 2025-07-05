@@ -23,16 +23,7 @@
   <?php include 'assets/includes/head-analytics.php'; ?>
 
   <?php
-    function loadEnv($path) {
-      $lines = @file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-      if (!$lines) return;
-      foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) continue;
-        if (strpos($line, '=') === false) continue;
-        list($key, $value) = explode('=', $line, 2);
-        putenv(trim($key) . '=' . trim($value));
-      }
-    }
+    require_once __DIR__ . '/api/env.php';
     loadEnv(__DIR__ . '/api/.env');
 
     $isDebug = getenv('DEBUG_MODE') === 'true';
