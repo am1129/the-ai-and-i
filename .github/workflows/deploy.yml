@@ -16,7 +16,7 @@ jobs:
         uses: sebastianpopp/ftp-action@releases/v2
         with:
           host: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
+          user: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           remoteDir: ${{ secrets.FTP_TARGET_DIR }}
           localDir: ./webapp/
