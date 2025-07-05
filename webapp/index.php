@@ -88,6 +88,12 @@
     <div class="c-choices js-choices is-hidden">
     </div><!-- /.c-choices -->
 
+    <!-- 対話終了メッセージ（初期は非表示） -->
+    <div class="js-final-message-wrap is-hidden">
+      <div class="js-final-message-ja"></div>
+      <div class="js-final-message-en"></div>
+    </div>
+
     <!-- ユーザー入力欄（初期は非表示） -->
     <div class="c-user-input-parent js-user-input-parent is-hidden">
       <div class="c-user-input js-user-input">

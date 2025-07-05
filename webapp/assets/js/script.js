@@ -201,7 +201,7 @@ function animateBackgroundGradient() {
   bgGradient.style.setProperty('--gradient-angle', '120deg');
   gsap.to(bgGradient, {
     '--gradient-angle': '480deg',
-    duration: 60,
+    duration: 30,
     repeat: -1,
     ease: 'linear',
     modifiers: {
@@ -758,6 +758,7 @@ function proceedToNextTurn(aiData) {
   if (window.currentTurn > 5) {
     hideElementFade(document.querySelector('.js-user-input-parent'));
     hideElementFade(document.querySelector('.js-choices'));
+    showFinalMessage();
     localStorage.setItem('the_ai_and_i_ended', '1');
     return;
   }
@@ -779,4 +780,19 @@ function proceedToNextTurn(aiData) {
     return;
   }
   // それ以外は何もしない
+}
+
+// =========================
+// 対話終了メッセージ表示関数（追加）
+// =========================
+function showFinalMessage() {
+  const finalMsgWrap = document.querySelector('.js-final-message-wrap');
+  const ja = finalMsgWrap.querySelector('.js-final-message-ja');
+  const en = finalMsgWrap.querySelector('.js-final-message-en');
+  // テキストセット
+  ja.textContent = '対話は、これでおしまいです。\u2028\nどうか、あなたの心に残りますように。';
+  en.textContent = 'The dialogue ends here.\u2028\nMay it gently stay in your heart.';
+  // 表示・アニメーション
+  finalMsgWrap.classList.remove('is-hidden');
+  fadeInWithBlur(finalMsgWrap, { duration: 1.2, delay: 0.5 });
 }

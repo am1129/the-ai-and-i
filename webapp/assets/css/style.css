@@ -9,8 +9,8 @@
   --color-choice-bg: rgba(255,255,255,0.2);
   --color-choice-bg-hover: rgba(255,255,255,0.35);
   --font-ja: YakuHanMP, 'Shippori Mincho', serif;
-  --font-en: 'Inter', 'Zen Kaku Gothic New', sans-serif;
-  --font-ja-sans: 'Zen Kaku Gothic New', sans-serif;
+  --font-en: 'Inter', YakuHanJP, 'Zen Kaku Gothic New', sans-serif;
+  --font-ja-sans: YakuHanJP, 'Zen Kaku Gothic New', sans-serif;
   --font-en-serif: 'Playfair', serif;
   --transition-hover-button: box-shadow 0.8s ease-out, background 0.8s ease-out, color 0.8s ease-out, filter 0.8s ease-out;
 }
@@ -18,6 +18,7 @@
 body {
   font-family: var(--font-ja), var(--font-en), var(--font-ja-sans), sans-serif;
   font-feature-settings: "palt" 1, "kern" 1;
+  font-weight: 300;
   color: var(--color-text);
   margin: 0;
   padding: 0;
@@ -55,8 +56,8 @@ body {
   width: 40vw;
   height: 40vw;
   border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.8;
+  filter: blur(40px);
+  opacity: 1;
   pointer-events: none;
 }
 .o-bg-ball1 { background: #FBF9E2; }
@@ -395,6 +396,7 @@ body {
   font-size: 10px;
   z-index: 10;
   letter-spacing: 0.05em;
+  opacity: 0.5;
   font-family: var(--font-en), var(--font-ja-sans), sans-serif;
 }
 .o-footer a, .footer a {
@@ -440,4 +442,33 @@ body {
 }
 @media (min-width: 769px) {
   .u-only-sp { display: none; }
+}
+
+/* --- 対話終了メッセージ --- */
+.js-final-message-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 60px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+.js-final-message-ja {
+  font-family: var(--font-ja-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 8px;
+  white-space: pre-line;
+}
+.js-final-message-en {
+  font-family: var(--font-en);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--color-gray);
+  white-space: pre-line;
 }
