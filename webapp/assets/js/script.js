@@ -119,6 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // UI: 選択肢をフェードアウト、ローディングをフェードイン
     await hideElementFade(document.querySelector('.js-choices'));
     await showLoading();
+    // API送信内容を事前に確認
+    const apiPayload = { turn: window.currentTurn, choice: { ja: choiceJa, en: choiceEn }, messages: historyMessages };
+    if(isDebug) console.log('API送信内容', apiPayload);
     const aiData = await getAiResponse(useDummyApi ? fetchAiWithChoiceDummy(choiceJa, choiceEn, window.currentTurn) : fetchAiWithChoice(choiceJa, choiceEn, window.currentTurn));
     await hideLoading();
     setAiResponseDisplay(aiData);
