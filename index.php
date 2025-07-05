@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>The AI and I.</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
   <link rel="icon" href="assets/images/favicon.ico">
   <link rel="canonical" href="https://am1129.work/the-ai-and-i/">
@@ -21,6 +21,27 @@
   <?php include 'assets/includes/head-webfonts.php'; ?>
 
   <?php include 'assets/includes/head-analytics.php'; ?>
+
+  <?php
+    function loadEnv($path) {
+      $lines = @file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+      if (!$lines) return;
+      foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        if (strpos($line, '=') === false) continue;
+        list($key, $value) = explode('=', $line, 2);
+        putenv(trim($key) . '=' . trim($value));
+      }
+    }
+    loadEnv(__DIR__ . '/api/.env');
+
+    $isDebug = getenv('DEBUG_MODE') === 'true';
+    if ($isDebug) {
+      echo '<script>window.IS_DEBUG=true;</script>';
+    } else {
+      echo '<script>window.IS_DEBUG=false;</script>';
+    }
+  ?>
 </head>
 
 <body>
