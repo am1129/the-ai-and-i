@@ -349,10 +349,9 @@ body {
   line-height: 1.6;
   text-align: center;
   letter-spacing: -0.06em;
-  font-style: italic;
 }
 .c-ai-poem__ja div{
-  transform: skewX(-3deg);
+  transform: skewX(-10deg);
 }
 .c-ai-poem__en {
   font-family: var(--font-en);
@@ -446,9 +445,6 @@ body {
   .c-user-input__field { font-size: 13px; min-width: 0; max-width: 100%; }
   .u-only-pc { display: none; }
   .c-ai-poem { width: 90%; }
-  .c-ai-poem__ja div{
-    transform: skewX(-10deg);
-  }
 }
 @media (min-width: 769px) {
   .u-only-sp { display: none; }
