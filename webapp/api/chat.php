@@ -73,7 +73,7 @@ if ($isNg) {
 $payload = json_encode([
   'model' => $model,
   'messages' => $messages,
-  'temperature' => 0.8
+  'temperature' => 1
 ]);
 
 $ch = curl_init('https://api.openai.com/v1/chat/completions');
